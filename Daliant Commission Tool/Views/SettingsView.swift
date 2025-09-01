@@ -1,5 +1,9 @@
 import SwiftUI
 import SwiftData
+#if canImport(CloudKit)
+import CloudKit
+#endif
+
 
 struct SettingsView: View {
     @Environment(\.modelContext) private var context
@@ -14,19 +18,34 @@ struct SettingsView: View {
     var body: some View {
         Form {
             Section("Organization") {
-                HStack {
-                    Text("Name").foregroundStyle(.secondary)
-                    Spacer()
-                    Text(currentOrgName()).fontWeight(.semibold)
-                }
-                HStack {
-                    Text("Join code").foregroundStyle(.secondary)
-                    Spacer()
-                    Text(currentOrgJoinCode())
-                        .font(.body.monospaced())
+                let org = orgs.first
+                LabeledContent("Name") { Text(org?.name ?? "—").bold() }
+                LabeledContent("Org ID") {
+                    Text(org?.id.uuidString.lowercased() ?? "—")
+                        .font(.footnote)
                         .textSelection(.enabled)
-                        .lineLimit(1)
                 }
+            }
+            Section("Account & Cloud") {
+                NavigationLink("Account") { AccountView() }
+
+                #if canImport(CloudKit)
+                if let org = orgs.first {
+                    // Owner: create or open the Org share
+                    NavigationLink("Share Organization…") {
+                        OrgSharingView(orgID: org.id, orgName: org.name)
+                    }
+                } else {
+                    // If no org yet, keep the link but explain
+                    NavigationLink("Share Organization…") { OrgOwnerHandOffView() }
+                }
+
+                // Dev tool: manual push/pull to verify sync in 10d
+                NavigationLink("Cloud Sync (10d)") { CloudSyncDebugView() }
+
+                // Helpful status (10b)
+                CloudStatusView(simulatedStatus: nil)
+                #endif
             }
             Section("Join different org") {
                 TextField("Enter join code", text: $newJoinCode)

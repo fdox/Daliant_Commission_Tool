@@ -2,21 +2,22 @@ import SwiftUI
 import SwiftData
 
 struct ContentView: View {
-    @Environment(\.modelContext) private var context
-    @Query(sort: [SortDescriptor(\Org.createdAt, order: .forward)]) private var orgs: [Org]
-    @AppStorage("signedInUserID") private var signedInUserID: String = ""
+    // Single source of truth for the gate
+    @Query(sort: [SortDescriptor(\Org.name)]) private var orgs: [Org]
+    @State private var hasOrg: Bool = false
 
     var body: some View {
-        NavigationStack {
-            if signedInUserID.isEmpty {
-                SignInView { userId, _ in
-                    signedInUserID = userId
-                }
-            } else if orgs.isEmpty {
-                OrgOnboardingView()
+        Group {
+            if hasOrg {
+                ProjectsHomeView()   // unchanged; your existing Projects list
             } else {
-                ProjectsHomeView()
+                OrgOnboardingView()  // shows the “Create Organization…” sheet
             }
         }
+        // Make the gate react on first display *and* whenever the list changes
+        .onAppear { hasOrg = !orgs.isEmpty }
+        .onChange(of: orgs.count) { _, newCount in hasOrg = newCount > 0 }
+        // Optional: gentle animation when switching
+        .animation(.default, value: hasOrg)
     }
 }
