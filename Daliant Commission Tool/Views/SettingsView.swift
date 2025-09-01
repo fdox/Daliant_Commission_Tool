@@ -26,27 +26,29 @@ struct SettingsView: View {
                         .textSelection(.enabled)
                 }
             }
-            Section("Account & Cloud") {
-                NavigationLink("Account") { AccountView() }
+#if canImport(CloudKit)
+if FeatureFlags.cloudKitUIEnabled {
+    Section("Account & Cloud (Legacy CK)") {
+        NavigationLink("Account") { AccountView() }
 
-                #if canImport(CloudKit)
-                if let org = orgs.first {
-                    // Owner: create or open the Org share
-                    NavigationLink("Share Organization…") {
-                        OrgSharingView(orgID: org.id, orgName: org.name)
-                    }
-                } else {
-                    // If no org yet, keep the link but explain
-                    NavigationLink("Share Organization…") { OrgOwnerHandOffView() }
-                }
-
-                // Dev tool: manual push/pull to verify sync in 10d
-                NavigationLink("Cloud Sync (10d)") { CloudSyncDebugView() }
-
-                // Helpful status (10b)
-                CloudStatusView(simulatedStatus: nil)
-                #endif
+        if let org = orgs.first {
+            // Owner: create or open the Org share
+            NavigationLink("Share Organization…") {
+                OrgSharingView(orgID: org.id, orgName: org.name)
             }
+        } else {
+            // If no org yet, keep the link but explain
+            NavigationLink("Share Organization…") { OrgOwnerHandOffView() }
+        }
+
+        // Dev tool: manual push/pull to verify sync in 10d
+        NavigationLink("Cloud Sync (10d)") { CloudSyncDebugView() }
+
+        // Helpful status (10b)
+        CloudStatusView(simulatedStatus: nil)
+    }
+}
+#endif
             Section("Join different org") {
                 TextField("Enter join code", text: $newJoinCode)
                     .textInputAutocapitalization(.characters)
