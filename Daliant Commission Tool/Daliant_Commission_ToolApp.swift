@@ -3,6 +3,7 @@ import SwiftData
 
 @main
 struct Daliant_Commission_ToolApp: App {
+    @UIApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
 
     // Force SwiftData to use a LOCAL store (no SwiftData↔CloudKit mirroring).
     // If file-backed creation fails in dev (e.g., old incompatible store),
@@ -24,7 +25,7 @@ struct Daliant_Commission_ToolApp: App {
     private let appContainer: ModelContainer = makeLocalContainer()
 
     var body: some Scene {
-        WindowGroup { ContentView() }
+        WindowGroup { AuthGateView() }
             .modelContainer(appContainer)
     }
 }

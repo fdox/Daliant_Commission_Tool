@@ -130,7 +130,17 @@ Section("Commissioning") {
             errorMessage = "Could not switch org: \(error.localizedDescription)"
         }
     }
+    // MARK: Helpers
     private func signOut() {
+        // 1) Sign out from Firebase (if enabled)
+        do {
+            try AuthState.shared.signOut()
+        } catch {
+            // Non-fatal: keep going to clear local data
+            errorMessage = "Sign out error: \(error.localizedDescription)"
+        }
+
+        // 2) Clear local Orgs and dismiss
         do {
             for o in try context.fetch(FetchDescriptor<Org>()) { context.delete(o) }
             try context.save()
@@ -139,6 +149,7 @@ Section("Commissioning") {
             errorMessage = "Sign out failed: \(error.localizedDescription)"
         }
     }
+
 }
 
 // MARK: - Preview helper

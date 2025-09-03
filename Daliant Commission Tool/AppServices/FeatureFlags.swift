@@ -9,7 +9,7 @@ import Foundation
 
 enum FeatureFlags {
     // Phase 11: we’ll flip this on in 11.a
-    static let firebaseEnabled = false
+    static let firebaseEnabled = true
 
     // Hide all legacy CloudKit UI by default
     static let cloudKitUIEnabled = false
