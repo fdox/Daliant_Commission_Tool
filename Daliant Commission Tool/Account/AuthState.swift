@@ -103,6 +103,21 @@ final class AuthState: ObservableObject {
         status = .signedOut
         #endif
     }
+    
+    func sendPasswordReset(email: String) async throws {
+        guard FeatureFlags.firebaseEnabled,
+              !ProcessInfo.processInfo.environment["XCODE_RUNNING_FOR_PREVIEWS"].map({ $0 == "1" })! else {
+            throw AuthError.disabled
+        }
+        #if canImport(FirebaseAuth)
+        try await withCheckedThrowingContinuation { (cont: CheckedContinuation<Void, Error>) in
+            Auth.auth().sendPasswordReset(withEmail: email) { error in
+                if let error = error { cont.resume(throwing: error) }
+                else { cont.resume(returning: ()) }
+            }
+        }
+        #endif
+    }
 
     enum AuthError: LocalizedError {
         case disabled, unavailable

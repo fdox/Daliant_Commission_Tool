@@ -12,6 +12,12 @@ final class Fixture {
     var commissionedAt: Date?
     var notes: String?
 
+    /// NEW (11e-1): last-writer-wins + sync decisions
+    var updatedAt: Date? = Date()
+    /// 11f: who made the last edit (uid or nil for local/offline)
+    var updatedBy: String?
+
+
     // Let SwiftData infer inverse to Item.fixtures
     var project: Item?
 
@@ -35,5 +41,6 @@ final class Fixture {
         self.commissionedAt = commissionedAt
         self.notes = notes
         self.project = project
+        self.updatedAt = Date()
     }
 }

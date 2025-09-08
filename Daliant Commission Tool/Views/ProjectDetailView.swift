@@ -51,6 +51,10 @@ private struct FixturesTab: View {
     @Environment(\.modelContext) private var modelContext
     @Bindable var project: Item
     @State private var showingAdd = false
+    // 11f: editing + delete state
+    @State private var editingFixture: Fixture?
+    @State private var showDeleteConfirm = false
+    @State private var pendingDelete: Fixture?
 
     // --- 5e: Filters state ---
     @State private var filterAddressText: String = ""   // e.g. "0-10", "12", "-20", "30-"
@@ -121,6 +125,23 @@ private struct FixturesTab: View {
                 } else {
                     ForEach(filteredFixtures, id: \.persistentModelID) { f in
                         FixtureRow(fixture: f)
+                            // Tap to edit
+                            .onTapGesture { editingFixture = f }
+
+                            // Leading swipe: Edit
+                            .swipeActions(edge: .leading) {
+                                Button("Edit") { editingFixture = f }
+                            }
+
+                            // Trailing swipe: Delete (with confirmation)
+                            .swipeActions {
+                                Button(role: .destructive) {
+                                    pendingDelete = f
+                                    showDeleteConfirm = true
+                                } label: {
+                                    Text("Delete")
+                                }
+                            }
                     }
                 }
             }
@@ -140,6 +161,39 @@ private struct FixturesTab: View {
             AddFixtureSheet(project: project)
                 .presentationDetents([.medium, .large])
                 .environment(\.modelContext, modelContext)
+        }
+        // 11f: Edit Fixture sheet (present when editingFixture != nil)
+        // 11f: Edit Fixture sheet (present when editingFixture != nil)
+        .sheet(
+            isPresented: Binding(
+                get: { editingFixture != nil },
+                set: { if !$0 { editingFixture = nil } }
+            )
+        ) {
+            if let fx = editingFixture {
+                EditFixtureSheet(fixture: fx)
+                    .environment(\.modelContext, modelContext)
+                    .presentationDetents([.medium, .large])
+            }
+        }
+        // 11f: Delete confirmation dialog
+        .confirmationDialog("Delete Fixture?",
+                            isPresented: $showDeleteConfirm,
+                            titleVisibility: .visible) {
+            Button("Delete", role: .destructive) {
+                guard let fx = pendingDelete else { return }
+                Task { @MainActor in
+                    do {
+                        try await FixtureSyncService.shared.delete(fx, context: modelContext)
+                    } catch {
+                        print("[Fixture] delete error: \(error.localizedDescription)")
+                    }
+                }
+                pendingDelete = nil
+            }
+            Button("Cancel", role: .cancel) { pendingDelete = nil }
+        } message: {
+            Text("Deleting a fixture will NOT change its address on the device. To change the address, put the fixture in commission mode and rescan.")
         }
     }
 }
@@ -344,7 +398,23 @@ private struct AddFixtureSheet: View {
 
                         // Persist and refresh UI
                         try? ctx.save()
+
+                        // 11e-3: push the new fixture to Firestore
+                        Task { @MainActor in
+                            do {
+                                try await FixtureSyncService.shared.push(fixture, context: ctx)
+                                #if DEBUG
+                                print("[FixSync] Pushed fixture \(fixture.label)")
+                                #endif
+                            } catch {
+                                #if DEBUG
+                                print("[FixSync] Push failed: \(error.localizedDescription)")
+                                #endif
+                            }
+                        }
+
                         dismiss()
+
                     }
                     .disabled(!canSave)
                 }
@@ -352,6 +422,74 @@ private struct AddFixtureSheet: View {
         }
     }
 }
+
+// 11f: Edit Fixture (label & room only; other fields are read-only)
+private struct EditFixtureSheet: View {
+    @Environment(\.dismiss) private var dismiss
+    @Environment(\.modelContext) private var ctx
+    @Bindable var fixture: Fixture
+
+    init(fixture: Fixture) {
+        self._fixture = Bindable(fixture)
+    }
+
+    var body: some View {
+        NavigationStack {
+            Form {
+                Section("Editable") {
+                    TextField("Label", text: $fixture.label)
+                        .textInputAutocapitalization(.words)
+                        .onChange(of: fixture.label) { _ in
+                            AutosaveCenter.shared.touch(fixture, context: ctx)
+                        }
+
+                    TextField("Room", text: Binding(
+                        get: { fixture.room ?? "" },
+                        set: {
+                            fixture.room = $0.nilIfEmpty
+                            AutosaveCenter.shared.touch(fixture, context: ctx)
+                        }
+                    ))
+                    .textInputAutocapitalization(.words)
+                }
+
+                Section("Read‑only") {
+                    HStack { Text("Address"); Spacer(); Text("\(fixture.shortAddress)").monospacedDigit() }
+                    HStack { Text("Groups");  Spacer(); Text(groupsString(fixture.groups)).monospaced() }
+                    HStack { Text("Serial");  Spacer(); Text(fixture.serial ?? "—").foregroundStyle(.secondary).textSelection(.enabled) }
+                    HStack { Text("DT Type"); Spacer(); Text(fixture.dtTypeRaw ?? "—").foregroundStyle(.secondary) }
+                }
+
+                Section(footer: Text("Editing label or room does not change the physical device configuration.")) {
+                    EmptyView()
+                }
+            }
+            .navigationTitle("Edit Fixture")
+            .toolbar {
+                ToolbarItem(placement: .cancellationAction) {
+                    Button("Cancel") { dismiss() }
+                }
+                ToolbarItem(placement: .confirmationAction) {
+                    Button("Save") {
+                        // Persist local changes
+                        try? ctx.save()
+
+                        // Push to Firestore
+                        Task { @MainActor in
+                            do {
+                                try await FixtureSyncService.shared.push(fixture, context: ctx)
+                            } catch {
+                                print("[Fixture] push error: \(error.localizedDescription)")
+                            }
+                        }
+                        dismiss()
+                    }
+                }
+            }
+        }
+    }
+}
+
 
 // Compact chip grid for G0…G15
 private struct GroupsGrid: View {
@@ -1049,6 +1187,9 @@ private struct ProjectSettingsTab: View {
         Form {
             Section("Basics") {
                 TextField("Project name", text: $project.title)
+                    .onChange(of: project.title) { _ in
+                        AutosaveCenter.shared.touch(project, context: context)
+                    }
                     .textInputAutocapitalization(.words)
             }
 
@@ -1133,3 +1274,4 @@ private struct ProjectDetailPreviewHost: View {
         .modelContainer(for: [Org.self, Item.self, Fixture.self], inMemory: true)
 }
 #endif
+//End

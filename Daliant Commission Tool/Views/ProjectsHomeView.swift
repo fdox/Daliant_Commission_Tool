@@ -34,33 +34,49 @@ struct ProjectsHomeView: View {
                     NavigationStack { SettingsView() }
                 }
                 // Wizard sheet
-                .sheet(isPresented: $showingWizard) {
-                    ProjectWizardView { title, first, last, address, csIndex in
-                        let t = title.trimmingCharacters(in: .whitespacesAndNewlines)
-                        guard !t.isEmpty else { return }
+            // Wizard sheet
+            .sheet(isPresented: $showingWizard) {
+                ProjectWizardView { title, first, last, address, csIndex in
+                    let t = title.trimmingCharacters(in: .whitespacesAndNewlines)
+                    guard !t.isEmpty else { return }
 
-                        // Use the initializer your Item actually has
-                        let newProject = Item(title: t)     // if your model uses name:, switch to Item(name: t)
+                    let newProject = Item(title: t)
 
-                        // Save Step 2b fields (safe trims)
-                        let f = first.trimmingCharacters(in: .whitespacesAndNewlines)
-                        let l = last.trimmingCharacters(in: .whitespacesAndNewlines)
-                        let a = address.trimmingCharacters(in: .whitespacesAndNewlines)
-                        newProject.contactFirstName = f.isEmpty ? nil : f
-                        newProject.contactLastName  = l.isEmpty ? nil : l
-                        newProject.siteAddress      = a.isEmpty ? nil : a
-                        let options = ["control4", "crestron", "lutron"]
-                        newProject.controlSystemRaw = (0..<options.count).contains(csIndex) ? options[csIndex] : options[0]
-                        newProject.createdAt = Date()
+                    // Save Step 2b fields (safe trims)
+                    let f = first.trimmingCharacters(in: .whitespacesAndNewlines)
+                    let l = last.trimmingCharacters(in: .whitespacesAndNewlines)
+                    let a = address.trimmingCharacters(in: .whitespacesAndNewlines)
+                    newProject.contactFirstName = f.isEmpty ? nil : f
+                    newProject.contactLastName  = l.isEmpty ? nil : l
+                    newProject.siteAddress      = a.isEmpty ? nil : a
+                    let options = ["control4", "crestron", "lutron"]
+                    newProject.controlSystemRaw = (0..<options.count).contains(csIndex) ? options[csIndex] : options[0]
+                    newProject.createdAt = Date()
+                    newProject.updatedAt = Date()
 
-                        withAnimation {
-                            context.insert(newProject)
-                            try? context.save()
-                            query = ""  // clear search so the row is visible
+                    withAnimation {
+                        context.insert(newProject)
+                        try? context.save()
+                        query = ""  // clear search so the row is visible
+                    }
+
+                    // Push to Firestore (fire-and-forget)
+                    Task {
+                        do {
+                            try await ProjectSyncService.shared.push(newProject, context: context)
+                            #if DEBUG
+                            print("[Projects] Pushed project \(newProject.title)")
+                            #endif
+                        } catch {
+                            #if DEBUG
+                            print("[Projects] Push failed: \(error.localizedDescription)")
+                            #endif
                         }
                     }
-                    .environment(\.modelContext, context) // same model context as the list
                 }
+                .environment(\.modelContext, context)
+            }
+
         }
         .searchable(text: $query, placement: .navigationBarDrawer(displayMode: .always))
     }
@@ -93,6 +109,14 @@ struct ProjectsHomeView: View {
                         created: p.createdAt
                     )
                 }
+                // 11g: archive swipe
+                .swipeActions {
+                    Button(role: .destructive) {
+                        archive(p)
+                    } label: {
+                        Text("Archive")
+                    }
+                }
                 .listRowSeparator(.hidden)
                 .listRowInsets(EdgeInsets(top: 8, leading: 16, bottom: 8, trailing: 16))
                 .background(Color.clear)
@@ -102,9 +126,11 @@ struct ProjectsHomeView: View {
     }
     
     private func filteredProjects() -> [Item] {
-        let base = projects.sorted {
-            $0.title.localizedStandardCompare($1.title) == .orderedAscending
-        }
+        let base = projects
+            .filter { $0.archivedAt == nil }  // 11g: hide archived
+            .sorted {
+                $0.title.localizedStandardCompare($1.title) == .orderedAscending
+            }
         let q = query.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !q.isEmpty else { return base }
         return base.filter { $0.title.localizedCaseInsensitiveContains(q) }
@@ -162,6 +188,18 @@ struct ProjectsHomeView: View {
         case "crestron", ".crestron": return "Crestron"
         case "lutron", ".lutron":     return "Lutron"
         default: return raw.isEmpty ? "—" : raw
+        }
+    }
+    // 11g: helper called by the swipe action
+    private func archive(_ item: Item) {
+        item.archivedAt = Date()
+        AutosaveCenter.shared.touch(item, context: context)
+        Task { @MainActor in
+            do {
+                try await ProjectSyncService.shared.push(item, context: context)
+            } catch {
+                print("[Archive] push error: \(error.localizedDescription)")
+            }
         }
     }
 }

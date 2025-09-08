@@ -32,6 +32,21 @@ struct EmailPasswordSignInView: View {
                         if isBusy { ProgressView() } else { Text("Create Account") }
                     }
                     .disabled(isBusy || email.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty || password.count < 6)
+                    
+                    Button("Forgot password?") {
+                        Task {
+                            do {
+                                let e = email.trimmingCharacters(in: .whitespacesAndNewlines)
+                                guard !e.isEmpty else { errorMessage = "Enter your email first."; return }
+                                try await auth.sendPasswordReset(email: e)
+                                errorMessage = "Password reset email sent (check your inbox)."
+                            } catch {
+                                errorMessage = error.localizedDescription
+                            }
+                        }
+                    }
+                    .font(.footnote)
+
                 }
 
                 if let msg = errorMessage, !msg.isEmpty {

@@ -13,17 +13,14 @@ struct AuthGateView: View {
     var body: some View {
         switch auth.status {
         case .loading:
-            ProgressView("Loading…")
-                .padding()
+            ProgressView("Loading…").padding()
         case .signedOut:
-            EmailPasswordSignInView()
+            EmailPasswordSignInView()   // ← signed-out always sees Sign In
         case .signedIn:
-            // Your existing app entry
-            ContentView()
+            SignedInGateView()          // ← NOT ContentView()
         }
     }
 }
 
-#Preview {
-    AuthGateView()
-}
+#Preview { AuthGateView() }
+
