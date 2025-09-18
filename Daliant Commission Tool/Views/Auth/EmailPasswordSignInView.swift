@@ -25,6 +25,13 @@ struct EmailPasswordSignInView: View {
                         if isBusy { ProgressView() } else { Text("Sign In") }
                     }
                     .disabled(isBusy || email.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty || password.isEmpty)
+                    
+                    // 12b-6: Apple sign-in
+                    AppleSignInRow()
+                        .padding(.top, 8)
+                    // 12c-5: Google sign-in
+                    GoogleSignInRow()
+                        .padding(.top, 4)
 
                     Button {
                         Task { await handleCreate() }

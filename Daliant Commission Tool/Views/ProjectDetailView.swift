@@ -186,9 +186,20 @@ private struct FixturesTab: View {
                     do {
                         try await FixtureSyncService.shared.delete(fx, context: modelContext)
                     } catch {
-                        print("[Fixture] delete error: \(error.localizedDescription)")
+                        // Silence harmless deletes of non-existent/unauthorized docs
+                        let ns = error as NSError
+                        let domain = ns.domain
+                        let code = ns.code
+                        let isFirestore = (domain == "FIRFirestoreErrorDomain"
+                                           || domain == "com.google.firebase.firestore"
+                                           || domain == "FirestoreErrorDomain")
+                        let ignorable = isFirestore && (code == 5 /* notFound */ || code == 7 /* permissionDenied */)
+                        if !ignorable {
+                            print("[Fixture] delete error: \(error.localizedDescription)")
+                        }
                     }
                 }
+                
                 pendingDelete = nil
             }
             Button("Cancel", role: .cancel) { pendingDelete = nil }
@@ -429,6 +440,12 @@ private struct EditFixtureSheet: View {
     @Environment(\.modelContext) private var ctx
     @Bindable var fixture: Fixture
 
+    // Draft fields so Cancel truly discards edits
+    @State private var draftLabel: String = ""
+    @State private var draftRoom: String = ""
+    @State private var didLoadDraft = false
+
+
     init(fixture: Fixture) {
         self._fixture = Bindable(fixture)
     }
@@ -437,21 +454,21 @@ private struct EditFixtureSheet: View {
         NavigationStack {
             Form {
                 Section("Editable") {
-                    TextField("Label", text: $fixture.label)
+                    TextField("Label", text: $draftLabel)
                         .textInputAutocapitalization(.words)
-                        .onChange(of: fixture.label) { _ in
-                            AutosaveCenter.shared.touch(fixture, context: ctx)
-                        }
 
-                    TextField("Room", text: Binding(
-                        get: { fixture.room ?? "" },
-                        set: {
-                            fixture.room = $0.nilIfEmpty
-                            AutosaveCenter.shared.touch(fixture, context: ctx)
-                        }
-                    ))
-                    .textInputAutocapitalization(.words)
+                    TextField("Room", text: $draftRoom)
+                        .keyboardType(.default)                  // ensures space bar is present
+                        .textInputAutocapitalization(.words)
+                        .autocorrectionDisabled(false)
                 }
+                .onAppear {
+                    guard !didLoadDraft else { return }
+                    draftLabel = fixture.label
+                    draftRoom  = fixture.room ?? ""
+                    didLoadDraft = true
+                }
+
 
                 Section("Read‑only") {
                     HStack { Text("Address"); Spacer(); Text("\(fixture.shortAddress)").monospacedDigit() }
@@ -471,6 +488,12 @@ private struct EditFixtureSheet: View {
                 }
                 ToolbarItem(placement: .confirmationAction) {
                     Button("Save") {
+                        // Copy drafts → model
+                        let newLabel = draftLabel.trimmingCharacters(in: .whitespacesAndNewlines)
+                        let newRoom  = draftRoom.trimmingCharacters(in: .whitespacesAndNewlines)
+                        fixture.label = newLabel
+                        fixture.room  = newRoom.isEmpty ? nil : newRoom
+
                         // Persist local changes
                         try? ctx.save()
 
@@ -484,6 +507,7 @@ private struct EditFixtureSheet: View {
                         }
                         dismiss()
                     }
+
                 }
             }
         }
@@ -889,8 +913,21 @@ private struct ScanTab: View {
                             )
                             project.fixtures.append(fixture)
                             try? ctx.save()
+
+                            // Push to Firestore (async, best‑effort)
+                            Task { @MainActor in
+                                do {
+                                    try await FixtureSyncService.shared.push(fixture, context: ctx)
+                                } catch {
+                                    #if DEBUG
+                                    print("[FixSync] Commission push failed: \(error.localizedDescription)")
+                                    #endif
+                                }
+                            }
+
                             onCommissioned(device.serial)
                             dismiss()
+
                         }
                         .disabled(!canSave)
                     }
@@ -1030,7 +1067,20 @@ private struct ScanTab: View {
                 used.insert(addr)
                 commissionedSerials.append(dev.serial)
                 committed += 1
+
+                // Push to Firestore (async, best‑effort)
+                Task { @MainActor in
+                    do {
+                        try await FixtureSyncService.shared.push(fx, context: ctx)
+                    } catch {
+                        #if DEBUG
+                        print("[FixSync] Bulk commission push failed for \(dev.serial): \(error.localizedDescription)")
+                        #endif
+                    }
+                }
+
                 addr += 1
+
             }
 
             if committed > 0 {

@@ -44,6 +44,11 @@ enum FirebaseBootstrap {
             #if DEBUG
             print("[Firebase] GoogleService-Info.plist not found; skipping configure.")
             #endif
+#if DEBUG
+if let app = FirebaseApp.app() {
+    print("[Firebase] projectID=\(app.options.projectID ?? "nil"), appID=\(app.options.googleAppID)")
+}
+#endif
         }
         #else
         #if DEBUG

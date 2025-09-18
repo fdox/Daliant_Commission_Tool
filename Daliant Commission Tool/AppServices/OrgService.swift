@@ -57,20 +57,21 @@ final class OrgService {
             #endif
         } else {
             // --- Create (bridged to async) ---
-            let orgUUID = UUID().uuidString.lowercased()
+            let orgId = user.uid         // single-org: key by owner uid
             orgName = defaultName(for: user.email)
             try await withCheckedThrowingContinuation { (cont: CheckedContinuation<Void, Error>) in
-                coll.document(orgUUID).setData([
-                    "id": orgUUID,
+                coll.document(orgId).setData([
+                    "id": orgId,
                     "name": orgName,
                     "ownerUid": user.uid,
                     "createdAt": FieldValue.serverTimestamp(),
                     "updatedAt": FieldValue.serverTimestamp()
-                ]) { error in
+                ], merge: true) { error in
                     if let error = error { cont.resume(throwing: error) }
                     else { cont.resume(returning: ()) }
                 }
             }
+
             #if DEBUG
             print("[Org] Created remote org: \(orgName)")
             #endif

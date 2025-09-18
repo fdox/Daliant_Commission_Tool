@@ -2,7 +2,31 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-	<key>NSBluetoothAlwaysUsageDescription</key>
-	<string>Used to discover and commission lighting fixtures via Pod4.</string>
+	<key>GID_CLIENT_ID</key>
+	<string>815967013607-kmfv185buag7of0pdimh2bqna2ius4cj.apps.googleusercontent.com</string>
+    <key>CFBundleIdentifier</key>
+    <string>$(PRODUCT_BUNDLE_IDENTIFIER)</string>
+	<key>CFBundleURLTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleTypeRole</key>
+			<string>Editor</string>
+			<key>CFBundleURLName</key>
+			<string>Google</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>com.googleusercontent.apps.815967013607-kmfv185buag7of0pdimh2bqna2ius4cj</string>
+			</array>
+		</dict>
+        <dict>
+            <key>CFBundleTypeRole</key>
+            <string>Editor</string>
+            <key>CFBundleURLSchemes</key>
+            <array>
+                <!-- Firebase Phone Auth reCAPTCHA callback -->
+                <string>app-1-815967013607-ios-45087870707a25ccb6b042</string>
+            </array>
+        </dict>
+	</array>
 </dict>
 </plist>

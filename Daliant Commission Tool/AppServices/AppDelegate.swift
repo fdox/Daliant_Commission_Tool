@@ -6,6 +6,9 @@
 //
 
 import UIKit
+import FirebaseAuth
+import GoogleSignIn
+
 
 final class AppDelegate: NSObject, UIApplicationDelegate {
     func application(
@@ -15,4 +18,18 @@ final class AppDelegate: NSObject, UIApplicationDelegate {
         FirebaseBootstrap.configureIfNeeded()
         return true
     }
+
+    // Google Sign-In + Firebase Auth (Phone reCAPTCHA) URL callbacks
+    func application(_ app: UIApplication,
+                     open url: URL,
+                     options: [UIApplication.OpenURLOptionsKey : Any] = [:]) -> Bool {
+        if GIDSignIn.sharedInstance.handle(url) {
+            return true
+        }
+        if Auth.auth().canHandle(url) {
+            return true
+        }
+        return false
+    }
 }
+

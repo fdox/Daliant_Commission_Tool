@@ -14,6 +14,17 @@ struct SettingsView: View {
 
     var body: some View {
         Form {
+            Section("Account") {
+                let verified = AuthState.shared.isVerified
+                Label {
+                    Text(verified ? "Verified" : "Needs verification")
+                        .font(.subheadline.weight(.semibold))
+                } icon: {
+                    Image(systemName: verified ? "checkmark.seal.fill" : "exclamationmark.triangle.fill")
+                        .foregroundStyle(verified ? .green : .orange)
+                }
+                .accessibilityIdentifier("settings_account_status")
+            }
             // Organization summary
             Section("Organization") {
                 let org = orgs.first
@@ -76,7 +87,10 @@ struct SettingsView: View {
             DevSyncSettingsSection()
 #endif
         }
-        .task { ActiveOrgStore.shared.ensureDefault(in: context) }
+        .task {
+            ActiveOrgStore.shared.ensureDefault(in: context)
+            await UserProfileService.shared.ensureProfile()
+        }
         .navigationTitle("Settings")
         .toolbar { ToolbarItem(placement: .topBarTrailing) { Button("Done") { dismiss() } } }
         .alert("Error", isPresented: .constant(errorMessage != nil)) {

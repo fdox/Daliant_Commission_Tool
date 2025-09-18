@@ -11,6 +11,9 @@ import SwiftUI
 #if canImport(FirebaseAuth)
 import FirebaseAuth
 #endif
+#if canImport(AuthenticationServices)
+import AuthenticationServices
+#endif
 
 @MainActor
 final class AuthState: ObservableObject {
@@ -129,3 +132,59 @@ final class AuthState: ObservableObject {
         }
     }
 }
+
+// 12b-3: Apple link-or-sign-in for Firebase, attached to AuthState
+#if canImport(FirebaseAuth) && canImport(AuthenticationServices)
+extension AuthState {
+
+    enum LinkOrSignInResult { case linked, signedIn }
+
+    /// Converts an Apple credential into a Firebase credential and either links to the current user
+    /// or signs in if no user is present. On success, mirrors providerIDs to /users/{uid}.
+    @MainActor
+    func linkOrSignIn(withApple appleCredential: ASAuthorizationAppleIDCredential, rawNonce: String) async throws -> LinkOrSignInResult {
+        guard
+            let tokenData = appleCredential.identityToken,
+            let idToken = String(data: tokenData, encoding: .utf8)
+        else {
+            throw NSError(domain: "AuthState", code: -10, userInfo: [NSLocalizedDescriptionKey: "Missing Apple identityToken"])
+        }
+
+        let oauth = OAuthProvider.appleCredential(withIDToken: idToken,
+                                                  rawNonce: rawNonce,
+                                                  fullName: appleCredential.fullName)
+
+        return try await linkOrSignIn(with: oauth)
+    }
+
+    /// Generic helper we’ll reuse for Google in 12c.
+    @MainActor
+    func linkOrSignIn(with oauth: AuthCredential) async throws -> LinkOrSignInResult {
+        if let user = Auth.auth().currentUser {
+            do {
+                _ = try await user.link(with: oauth)
+                try await UserProfileService.shared.refreshProviderIDsFromAuth()
+                return .linked
+            } catch let err as NSError
+                    where err.domain == AuthErrorDomain &&
+                          err.code == AuthErrorCode.credentialAlreadyInUse.rawValue {
+                // That credential is tied to a different account; sign into that account instead.
+                _ = try await Auth.auth().signIn(with: oauth)
+                try await UserProfileService.shared.refreshProviderIDsFromAuth()
+                return .signedIn
+            }
+        } else {
+            _ = try await Auth.auth().signIn(with: oauth)
+            try await UserProfileService.shared.refreshProviderIDsFromAuth()
+            return .signedIn
+        }
+    }
+    // 12c-3: Google link-or-sign-in using tokens
+    @MainActor
+    func linkOrSignInWithGoogle(idToken: String, accessToken: String) async throws -> LinkOrSignInResult {
+        let cred = GoogleAuthProvider.credential(withIDToken: idToken, accessToken: accessToken)
+        return try await linkOrSignIn(with: cred)
+    }
+
+}
+#endif
