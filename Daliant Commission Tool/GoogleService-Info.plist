@@ -9,7 +9,7 @@
 	<key>PLIST_VERSION</key>
 	<string>1</string>
 	<key>BUNDLE_ID</key>
-	<string>com.daliantlighting.daliantcommissiontool</string>
+	<string>com.daliantlighting.commissiontool</string>
 	<key>PROJECT_ID</key>
 	<string>daliant-commission-tool</string>
 	<key>STORAGE_BUCKET</key>
@@ -25,6 +25,6 @@
 	<key>IS_SIGNIN_ENABLED</key>
 	<true></true>
 	<key>GOOGLE_APP_ID</key>
-	<string>1:815967013607:ios:6ff92c0777a4a686b6b042</string>
+	<string>1:815967013607:ios:45087870707a25ccb6b042</string>
 </dict>
 </plist>
