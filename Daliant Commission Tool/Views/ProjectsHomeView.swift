@@ -85,15 +85,16 @@ struct ProjectsHomeView: View {
     @ViewBuilder
     private func content(for items: [Item]) -> some View {
         if items.isEmpty {
-            ContentUnavailableView(
-                "No Projects",
+            DSState.Empty(
+                title: "No Projects",
                 systemImage: "folder",
-                description: Text("Tap + to add your first project.")
+                message: "Tap + to add your first project."
             )
             .padding()
         } else {
             projectsList(items)
         }
+
     }
 
     private func projectsList(_ items: [Item]) -> some View {
@@ -103,11 +104,12 @@ struct ProjectsHomeView: View {
                     ProjectDetailView(project: p)
                 } label: {
                     ProjectCardRow(
-                        name: p.title,                                      // direct property (fast type-check)
+                        name: p.title,
                         controlSystemTag: projectControlSystemTag(p),
                         contact: projectContact(p),
-                        created: p.createdAt
+                        created: p.updatedAt ?? p.createdAt
                     )
+
                 }
                 // 11g: archive swipe
                 .swipeActions {
@@ -118,7 +120,7 @@ struct ProjectsHomeView: View {
                     }
                 }
                 .listRowSeparator(.hidden)
-                .listRowInsets(EdgeInsets(top: 8, leading: 16, bottom: 8, trailing: 16))
+                .listRowInsets(EdgeInsets(top: DS.Spacing.sm, leading: DS.Spacing.lg, bottom: DS.Spacing.sm, trailing: DS.Spacing.lg))
                 .background(Color.clear)
             }
         }
@@ -204,50 +206,56 @@ struct ProjectsHomeView: View {
     }
 }
 
-private struct ProjectCardRow: View {
+struct ProjectCardRow: View {
     let name: String
     let controlSystemTag: String?
     let contact: String?
     let created: Date?
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 6) {
+        VStack(alignment: .leading, spacing: DS.Spacing.sm) {
             Text(name)
-                .font(.headline)
+                .font(DS.Font.heading)
                 .lineLimit(1)
 
-            HStack(spacing: 8) {
+            HStack(spacing: DS.Spacing.sm) {
                 if let tag = controlSystemTag {
-                    Text(tag)
-                        .font(.caption)
-                        .padding(.horizontal, 8)
-                        .padding(.vertical, 4)
-                        .background(.thinMaterial, in: Capsule())
+                    // Present control system as a semantic badge
+                    DSUI.SemanticBadge(kind: .info, text: tag, systemImage: "bolt.fill")
                         .accessibilityLabel("Control system \(tag)")
                 }
 
                 if let contact, !contact.isEmpty {
                     Text(contact)
-                        .font(.subheadline)
+                        .font(DS.Font.sub)
                         .foregroundStyle(.secondary)
                         .lineLimit(1)
                 }
 
+                Spacer(minLength: DS.Spacing.md)
+
                 if let created {
                     Text(created, format: .dateTime.month(.abbreviated).day().year())
-                        .font(.caption)
+                        .font(DS.Font.caption)
                         .foregroundStyle(.secondary)
                         .lineLimit(1)
+                        .accessibilityLabel("Last updated \(created.formatted(.dateTime.month().day().year()))")
                 }
             }
         }
-        .padding(12)
+        .padding(DS.Card.padding)
         .background(
-            RoundedRectangle(cornerRadius: 12, style: .continuous)
+            RoundedRectangle(cornerRadius: DS.Card.corner, style: .continuous)
                 .fill(Color(uiColor: .secondarySystemBackground))
         )
+        .overlay(
+            RoundedRectangle(cornerRadius: DS.Card.corner, style: .continuous)
+                .strokeBorder(Color.secondary.opacity(DS.Opacity.hairline), lineWidth: DS.Line.hairline)
+        )
+        .contentShape(Rectangle())
     }
 }
+
 
     
     // MARK: - Preview helper (seed OUTSIDE the #Preview)

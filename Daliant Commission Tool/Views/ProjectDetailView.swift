@@ -84,15 +84,17 @@ private struct FixturesTab: View {
     var body: some View {
         List {
             if project.fixtures.isEmpty {
-                ContentUnavailableView {
-                    Label("No fixtures yet", systemImage: "lightbulb.slash")
-                } description: {
-                    Text("Add fixtures manually while we stub commissioning.")
-                } actions: {
-                    Button("Add Fixture") { showingAdd = true }
-                        .buttonStyle(.borderedProminent)
-                }
+                DSState.Empty(
+                    title: "No Fixtures",
+                    systemImage: "lightbulb",
+                    message: "Scan devices to add fixtures, or add one manually.",
+                    actionTitle: "Add Fixture",
+                    action: { showingAdd = true }
+                )
+                .padding(.vertical, DS.Spacing.md)
             } else {
+
+
                 // --- 5e: Filters UI (always visible when list has items) ---
                 FixtureFiltersView(
                     addressText: $filterAddressText,
@@ -1142,12 +1144,14 @@ private struct RoomsTab: View {
     var body: some View {
         List {
             if project.fixtures.isEmpty {
-                ContentUnavailableView {
-                    Label("Rooms view", systemImage: "square.grid.2x2")
-                } description: {
-                    Text("Add fixtures to see them grouped by room.")
-                }
+                DSState.Empty(
+                    title: "No Rooms",
+                    systemImage: "square.grid.2x2",
+                    message: "Add fixtures or assign rooms to see them grouped here."
+                )
+                .padding(.vertical, DS.Spacing.md)
             } else {
+
                 ForEach(roomGroups(for: project)) { group in
                     Section {
                         ForEach(group.fixtures, id: \.persistentModelID) { f in
@@ -1206,7 +1210,16 @@ private struct ExportTab: View {
     let project: Item   // read-only is fine; we aren’t editing here
 
     var body: some View {
-        ExportView(project: project)
+        if project.fixtures.isEmpty {
+            DSState.Empty(
+                title: "Nothing to export",
+                systemImage: "square.and.arrow.up",
+                message: "Add fixtures to generate a report."
+            )
+            .padding(.vertical, DS.Spacing.md)
+        } else {
+            ProjectExportView(project: project)
+        }
     }
 }
 
