@@ -15,7 +15,7 @@ struct AuthGateView: View {
         case .loading:
             ProgressView("Loading…").padding()
         case .signedOut:
-            EmailPasswordSignInView()   // ← signed-out always sees Sign In
+            AuthFlowRoot()  // ← signed-out always sees Sign In
         case .signedIn:
             SignedInGateView()          // ← NOT ContentView()
         }

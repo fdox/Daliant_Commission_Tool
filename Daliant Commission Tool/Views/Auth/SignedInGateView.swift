@@ -46,7 +46,7 @@ struct SignedInGateView: View {
             Task {
                 // Keep the sheet in sync on re-appear (e.g., returning from Mail)
                 try? await AuthState.shared.reloadCurrentUser()
-                showVerifyGate = !AuthState.shared.isVerified
+                showVerifyGate = FeatureFlags.emailVerificationRequired && !AuthState.shared.isVerified
                 #if DEBUG
                 print("[SignedInGate] verifyGate show=\(showVerifyGate)")
                 #endif
@@ -96,13 +96,14 @@ do {
     #endif
 }
 
-if !AuthState.shared.isVerified {
-    #if DEBUG
-    print("[SignedInGate] not verified → showing VerifyAccountView")
-    #endif
-    await MainActor.run { showVerifyGate = true }
-    return // pause; we'll resume bootstrap after verification
-}
+            if FeatureFlags.emailVerificationRequired && !AuthState.shared.isVerified {
+                #if DEBUG
+                print("[SignedInGate] not verified → showing VerifyAccountView")
+                #endif
+                await MainActor.run { showVerifyGate = true }
+                return // pause; we'll resume bootstrap after verification
+            }
+
 
 #if DEBUG
 print("[SignedInGate] verified; pulling projects…")

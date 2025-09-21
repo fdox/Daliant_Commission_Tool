@@ -40,12 +40,22 @@
 		9E306CC52E7CF70100258FE6 /* States.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9E306CC42E7CF70000258FE6 /* States.swift */; };
 		9E306CC72E7E1F9700258FE6 /* PDFExportService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9E306CC62E7E1F9600258FE6 /* PDFExportService.swift */; };
 		9E306CC92E7E22F400258FE6 /* ExportView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9E306CC82E7E22F000258FE6 /* ExportView.swift */; };
+		9E306CCB2E7E713900258FE6 /* AuthLandingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9E306CCA2E7E713800258FE6 /* AuthLandingView.swift */; };
+		9E306CCD2E7F038300258FE6 /* SignInChoiceView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9E306CCC2E7F038200258FE6 /* SignInChoiceView.swift */; };
+		9E306CCF2E7F2D9500258FE6 /* SignUpChoiceView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9E306CCE2E7F2D9400258FE6 /* SignUpChoiceView.swift */; };
+		9E306CD12E7F3CD100258FE6 /* AuthFlowRoot.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9E306CD02E7F3CD000258FE6 /* AuthFlowRoot.swift */; };
+		9E306CD32E7F61C400258FE6 /* EmailSignUpView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9E306CD22E7F61C400258FE6 /* EmailSignUpView.swift */; };
+		9E306CD52E7F882B00258FE6 /* CreatePasswordView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9E306CD42E7F882A00258FE6 /* CreatePasswordView.swift */; };
+		9E306CD72E7F952100258FE6 /* NameEntryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9E306CD62E7F952000258FE6 /* NameEntryView.swift */; };
+		9E306CD92E7FB83100258FE6 /* AuthService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9E306CD82E7FB83000258FE6 /* AuthService.swift */; };
+		9E306CDC2E7FB85400258FE6 /* UserStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9E306CDB2E7FB85300258FE6 /* UserStore.swift */; };
+		9E306CDE2E80780200258FE6 /* EmailSignInView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9E306CDD2E80780200258FE6 /* EmailSignInView.swift */; };
+		9E306CE02E80782000258FE6 /* PasswordSignInView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9E306CDF2E80781F00258FE6 /* PasswordSignInView.swift */; };
 		9E505B962E5ACB4000B1BFE2 /* Org.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9E505B8B2E5ACB4000B1BFE2 /* Org.swift */; };
 		9E505B972E5ACB4000B1BFE2 /* Daliant_Commission_ToolApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9E505B942E5ACB4000B1BFE2 /* Daliant_Commission_ToolApp.swift */; };
 		9E505B982E5ACB4000B1BFE2 /* OrgOnboardingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9E505B8F2E5ACB4000B1BFE2 /* OrgOnboardingView.swift */; };
 		9E505B992E5ACB4000B1BFE2 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9E505B8E2E5ACB4000B1BFE2 /* ContentView.swift */; };
 		9E505B9A2E5ACB4000B1BFE2 /* ProjectsHomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9E505B902E5ACB4000B1BFE2 /* ProjectsHomeView.swift */; };
-		9E505B9B2E5ACB4000B1BFE2 /* SignInView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9E505B912E5ACB4000B1BFE2 /* SignInView.swift */; };
 		9E505B9C2E5ACB4000B1BFE2 /* Item.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9E505B8A2E5ACB4000B1BFE2 /* Item.swift */; };
 		9E505B9D2E5ACB4000B1BFE2 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 9E505B932E5ACB4000B1BFE2 /* Assets.xcassets */; };
 		9E505BA12E5ACF8400B1BFE2 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9E505BA02E5ACF8400B1BFE2 /* SettingsView.swift */; };
@@ -131,6 +141,17 @@
 		9E306CC42E7CF70000258FE6 /* States.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = States.swift; sourceTree = "<group>"; };
 		9E306CC62E7E1F9600258FE6 /* PDFExportService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PDFExportService.swift; sourceTree = "<group>"; };
 		9E306CC82E7E22F000258FE6 /* ExportView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExportView.swift; sourceTree = "<group>"; };
+		9E306CCA2E7E713800258FE6 /* AuthLandingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthLandingView.swift; sourceTree = "<group>"; };
+		9E306CCC2E7F038200258FE6 /* SignInChoiceView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignInChoiceView.swift; sourceTree = "<group>"; };
+		9E306CCE2E7F2D9400258FE6 /* SignUpChoiceView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignUpChoiceView.swift; sourceTree = "<group>"; };
+		9E306CD02E7F3CD000258FE6 /* AuthFlowRoot.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthFlowRoot.swift; sourceTree = "<group>"; };
+		9E306CD22E7F61C400258FE6 /* EmailSignUpView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmailSignUpView.swift; sourceTree = "<group>"; };
+		9E306CD42E7F882A00258FE6 /* CreatePasswordView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CreatePasswordView.swift; sourceTree = "<group>"; };
+		9E306CD62E7F952000258FE6 /* NameEntryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NameEntryView.swift; sourceTree = "<group>"; };
+		9E306CD82E7FB83000258FE6 /* AuthService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthService.swift; sourceTree = "<group>"; };
+		9E306CDB2E7FB85300258FE6 /* UserStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserStore.swift; sourceTree = "<group>"; };
+		9E306CDD2E80780200258FE6 /* EmailSignInView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmailSignInView.swift; sourceTree = "<group>"; };
+		9E306CDF2E80781F00258FE6 /* PasswordSignInView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PasswordSignInView.swift; sourceTree = "<group>"; };
 		9E505B422E5A4F6300B1BFE2 /* Daliant Commission Tool.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Daliant Commission Tool.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		9E505B512E5A4F6500B1BFE2 /* Daliant Commission ToolTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "Daliant Commission ToolTests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 		9E505B5B2E5A4F6500B1BFE2 /* Daliant Commission ToolUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "Daliant Commission ToolUITests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -209,6 +230,15 @@
 		9E1D9F9A2E67C094003EB6D1 /* Auth */ = {
 			isa = PBXGroup;
 			children = (
+				9E306CDF2E80781F00258FE6 /* PasswordSignInView.swift */,
+				9E306CDD2E80780200258FE6 /* EmailSignInView.swift */,
+				9E306CD62E7F952000258FE6 /* NameEntryView.swift */,
+				9E306CD42E7F882A00258FE6 /* CreatePasswordView.swift */,
+				9E306CD22E7F61C400258FE6 /* EmailSignUpView.swift */,
+				9E306CD02E7F3CD000258FE6 /* AuthFlowRoot.swift */,
+				9E306CCE2E7F2D9400258FE6 /* SignUpChoiceView.swift */,
+				9E306CCC2E7F038200258FE6 /* SignInChoiceView.swift */,
+				9E306CCA2E7E713800258FE6 /* AuthLandingView.swift */,
 				9E2F1D1B2E7669C500B2B3AF /* PhoneVerifySheet.swift */,
 				9E2F1D162E76359700B2B3AF /* VerifyAccountView.swift */,
 				9E2F1D112E762D0400B2B3AF /* GoogleSignInRow.swift */,
@@ -275,6 +305,7 @@
 			isa = PBXGroup;
 			children = (
 				9E2F1D182E76691D00B2B3AF /* Phone */,
+				9E306CD82E7FB83000258FE6 /* AuthService.swift */,
 				9E2F1D142E76357400B2B3AF /* AuthState+Verification.swift */,
 			);
 			path = Auth;
@@ -296,6 +327,14 @@
 				9E306CC02E7CD47800258FE6 /* Tokens.swift */,
 			);
 			path = Design;
+			sourceTree = "<group>";
+		};
+		9E306CDA2E7FB84D00258FE6 /* Users */ = {
+			isa = PBXGroup;
+			children = (
+				9E306CDB2E7FB85300258FE6 /* UserStore.swift */,
+			);
+			path = Users;
 			sourceTree = "<group>";
 		};
 		9E505B392E5A4F6300B1BFE2 = {
@@ -442,6 +481,7 @@
 		9EF7E5722E666375002B9BFE /* AppServices */ = {
 			isa = PBXGroup;
 			children = (
+				9E306CDA2E7FB84D00258FE6 /* Users */,
 				9E2F1D132E76356F00B2B3AF /* Auth */,
 				9E2F1CF72E6FCA7200B2B3AF /* UserProfileService.swift */,
 				9E2F1CF32E6B937800B2B3AF /* AutosaveCenter.swift */,
@@ -601,6 +641,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				9E2F1D152E76357500B2B3AF /* AuthState+Verification.swift in Sources */,
+				9E306CD32E7F61C400258FE6 /* EmailSignUpView.swift in Sources */,
 				9EF7E5582E653255002B9BFE /* CloudMapping.swift in Sources */,
 				9E1D9F952E67BF95003EB6D1 /* FirebaseBootstrap.swift in Sources */,
 				9EF7E55A2E653271002B9BFE /* CloudMappingPreview.swift in Sources */,
@@ -609,13 +650,17 @@
 				9E505BA12E5ACF8400B1BFE2 /* SettingsView.swift in Sources */,
 				9EF3D20D2E6100B7005D624B /* JSONRoundTripPreview.swift in Sources */,
 				9E505B972E5ACB4000B1BFE2 /* Daliant_Commission_ToolApp.swift in Sources */,
+				9E306CE02E80782000258FE6 /* PasswordSignInView.swift in Sources */,
 				9E2F1CEB2E6A736500B2B3AF /* ProjectSyncService.swift in Sources */,
 				9E1D9F972E67BFAD003EB6D1 /* AppDelegate.swift in Sources */,
 				9E505B982E5ACB4000B1BFE2 /* OrgOnboardingView.swift in Sources */,
 				9E505B992E5ACB4000B1BFE2 /* ContentView.swift in Sources */,
+				9E306CD12E7F3CD100258FE6 /* AuthFlowRoot.swift in Sources */,
 				9EF3D1F02E5FCD97005D624B /* CommissioningMode.swift in Sources */,
+				9E306CCD2E7F038300258FE6 /* SignInChoiceView.swift in Sources */,
 				9E505BA72E5B9DEB00B1BFE2 /* ProjectDetailView.swift in Sources */,
 				9E505BA92E5BC8D300B1BFE2 /* Fixture.swift in Sources */,
+				9E306CCF2E7F2D9500258FE6 /* SignUpChoiceView.swift in Sources */,
 				9E306CC72E7E1F9700258FE6 /* PDFExportService.swift in Sources */,
 				9E1D9F9E2E67C0B9003EB6D1 /* AuthGateView.swift in Sources */,
 				9E306CC22E7CE5BA00258FE6 /* Components.swift in Sources */,
@@ -623,14 +668,15 @@
 				9EF7E5742E666382002B9BFE /* FeatureFlags.swift in Sources */,
 				9E2F1CE32E6A38C100B2B3AF /* ActiveOrgPickerView.swift in Sources */,
 				9EF3D1F72E5FD63A005D624B /* BLECommissioningClient.swift in Sources */,
+				9E306CDE2E80780200258FE6 /* EmailSignInView.swift in Sources */,
 				9EF3D2032E60EEA3005D624B /* DTOs.swift in Sources */,
 				9EF7E5662E65496E002B9BFE /* AccountState.swift in Sources */,
 				9E1D9F992E67C079003EB6D1 /* AuthState.swift in Sources */,
 				9EF3D2002E60B638005D624B /* Design.swift in Sources */,
 				9E2F1CF22E6B686700B2B3AF /* DevSyncSettingsSection.swift in Sources */,
+				9E306CD72E7F952100258FE6 /* NameEntryView.swift in Sources */,
 				9E505B9A2E5ACB4000B1BFE2 /* ProjectsHomeView.swift in Sources */,
 				9E2F1D0A2E7309C300B2B3AF /* GoogleSignInCoordinator.swift in Sources */,
-				9E505B9B2E5ACB4000B1BFE2 /* SignInView.swift in Sources */,
 				9EF7E55D2E653926002B9BFE /* CloudConfig.swift in Sources */,
 				9E2F1CF62E6D2F9500B2B3AF /* ArchivedProjectsView.swift in Sources */,
 				9EF7E5612E653C49002B9BFE /* OrgZone.swift in Sources */,
@@ -639,6 +685,7 @@
 				9E505B9C2E5ACB4000B1BFE2 /* Item.swift in Sources */,
 				9E2F1CF82E6FCA7300B2B3AF /* UserProfileService.swift in Sources */,
 				9EF7E56F2E65DE69002B9BFE /* CloudStore.swift in Sources */,
+				9E306CD52E7F882B00258FE6 /* CreatePasswordView.swift in Sources */,
 				9E306CC32E7CE5C600258FE6 /* Tokens.swift in Sources */,
 				9E306CC92E7E22F400258FE6 /* ExportView.swift in Sources */,
 				9EF3D1FA2E5FDC23005D624B /* PDFExporter.swift in Sources */,
@@ -651,6 +698,8 @@
 				9E2F1CEF2E6B684200B2B3AF /* LiveSyncCenter.swift in Sources */,
 				9E2F1CF42E6B937800B2B3AF /* AutosaveCenter.swift in Sources */,
 				9EF3D1F32E5FD4CF005D624B /* CommissioningClient.swift in Sources */,
+				9E306CD92E7FB83100258FE6 /* AuthService.swift in Sources */,
+				9E306CDC2E7FB85400258FE6 /* UserStore.swift in Sources */,
 				9EF3D1FE2E60AEFF005D624B /* ShareSheet.swift in Sources */,
 				9E306CC52E7CF70100258FE6 /* States.swift in Sources */,
 				9E2F1D172E76359800B2B3AF /* VerifyAccountView.swift in Sources */,
@@ -658,6 +707,7 @@
 				9E2F1D002E726E7A00B2B3AF /* AppleSignInRow.swift in Sources */,
 				9E2F1CE52E6A5F7100B2B3AF /* OrgService.swift in Sources */,
 				9EF3D20B2E60F73A005D624B /* JSONImportButton.swift in Sources */,
+				9E306CCB2E7E713900258FE6 /* AuthLandingView.swift in Sources */,
 				9E1D9F9C2E67C0A4003EB6D1 /* EmailPasswordSignInView.swift in Sources */,
 				9E2F1CFC2E710D7500B2B3AF /* Nonce.swift in Sources */,
 				9E505BA32E5AD91900B1BFE2 /* PreviewSeed.swift in Sources */,
