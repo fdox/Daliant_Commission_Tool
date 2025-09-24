@@ -9,6 +9,8 @@ import SwiftUI
 
 struct EmailSignInView: View {
     @State private var email = ""
+    @State private var isLoading = false
+    @State private var errorMessage: String?
     @FocusState private var isFocused: Bool
     var onNext: (String) -> Void
 
@@ -51,16 +53,25 @@ struct EmailSignInView: View {
                 )
             }
 
+            if let errorMessage = errorMessage {
+                Text(errorMessage)
+                    .font(.footnote)
+                    .foregroundStyle(.red)
+                    .padding(.horizontal, DS.Spacing.xl)
+            }
+            
             Spacer(minLength: 0)
         }
         .safeAreaInset(edge: .bottom) {
             DSUI.StickyCtaBar(
-                title: "Next",
-                isEnabled: isValidEmail(email),
+                title: isLoading ? "Checking..." : "Next",
+                isEnabled: isValidEmail(email) && !isLoading,
                 useBackground: false,
                 tint: .black
             ) {
-                onNext(email.trimmingCharacters(in: .whitespacesAndNewlines))
+                Task {
+                    await checkEmailAndProceed()
+                }
             }
         }
 
@@ -69,6 +80,34 @@ struct EmailSignInView: View {
         .navigationBarBackButtonHidden(false)
     }
 
+    private func checkEmailAndProceed() async {
+        let trimmedEmail = email.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard isValidEmail(trimmedEmail) else { return }
+        
+        isLoading = true
+        errorMessage = nil
+        
+        do {
+            let emailInUse = try await AuthService.isEmailInUse(trimmedEmail)
+            if emailInUse {
+                // Email exists, proceed to password sign-in
+                onNext(trimmedEmail)
+            } else {
+                // Email doesn't exist, show message or proceed to sign-up
+                errorMessage = "No account found with this email. Would you like to create one?"
+                // For now, still proceed to password view - the user can choose to create account there
+                onNext(trimmedEmail)
+            }
+        } catch {
+            errorMessage = "Unable to check email. Please try again."
+            #if DEBUG
+            print("[EmailSignInView] Error checking email: \(error)")
+            #endif
+        }
+        
+        isLoading = false
+    }
+    
     private func isValidEmail(_ s: String) -> Bool {
         let s = s.trimmingCharacters(in: .whitespacesAndNewlines)
         return s.contains("@") && s.contains(".") && s.count >= 5
