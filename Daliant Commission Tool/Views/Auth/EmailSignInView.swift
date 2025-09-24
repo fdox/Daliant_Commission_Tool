@@ -89,11 +89,20 @@ struct EmailSignInView: View {
         
         do {
             let emailInUse = try await AuthService.isEmailInUse(trimmedEmail)
+            #if DEBUG
+            print("[EmailSignInView] Email check result: \(emailInUse) for email: \(trimmedEmail)")
+            #endif
             if emailInUse {
                 // Email exists, proceed to password sign-in (no error message)
+                #if DEBUG
+                print("[EmailSignInView] Email exists, proceeding to password view")
+                #endif
                 onNext(trimmedEmail)
             } else {
                 // Email doesn't exist, show message and DON'T proceed
+                #if DEBUG
+                print("[EmailSignInView] Email doesn't exist, showing error message and staying on view")
+                #endif
                 errorMessage = "No account found with this email. Please check your email or create a new account."
                 // Do NOT call onNext() - stay on this view
             }
