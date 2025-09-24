@@ -21,6 +21,8 @@ struct EmailSignUpView: View {
 
     /// Called when a valid email is submitted.
     var onNext: ((String) -> Void)? = nil
+    /// Called when user wants to switch to sign-in flow
+    var onSwitchToSignIn: (() -> Void)? = nil
 
     private var isValid: Bool {
         // Simple but robust-enough email check for UI (server will re-validate).
@@ -180,9 +182,8 @@ struct EmailSignUpView: View {
     }
     
     private func navigateToSignIn() {
-        // Navigate back to the sign-in flow using SwiftUI's dismiss
-        // This will pop back to the previous view in the navigation stack
-        dismiss()
+        // Use the callback to navigate to sign-in flow
+        onSwitchToSignIn?()
     }
 }
 
@@ -190,7 +191,10 @@ struct EmailSignUpView: View {
 struct EmailSignUpView_Previews: PreviewProvider {
     static var previews: some View {
         NavigationStack {
-            EmailSignUpView { _ in print("Next with email") }
+            EmailSignUpView(
+                onNext: { _ in print("Next with email") },
+                onSwitchToSignIn: { print("Switch to sign in") }
+            )
         }
     }
 }

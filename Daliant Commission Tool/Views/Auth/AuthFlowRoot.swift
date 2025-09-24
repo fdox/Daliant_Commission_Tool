@@ -48,9 +48,14 @@ struct AuthFlowRoot: View {
                     )
 
                 case .signUpEmail:
-                    EmailSignUpView { email in
-                        path.append(.createPassword(email: email))
-                    }
+                    EmailSignUpView(
+                        onNext: { email in
+                            path.append(.createPassword(email: email))
+                        },
+                        onSwitchToSignIn: {
+                            path.append(.signInEmail)
+                        }
+                    )
                     
                 case .signInEmail:
                     EmailSignInView { email in
