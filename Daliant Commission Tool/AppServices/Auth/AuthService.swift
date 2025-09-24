@@ -77,39 +77,13 @@ do {
     #endif
 }
 
-// If no Auth methods found, try a different approach:
-// Attempt to create a temporary account to see if email is already in use
-// This will fail with "email-already-in-use" if the email exists
-do {
-    // Try to create account with a dummy password - this will fail if email exists
-    let _ = try await withCheckedThrowingContinuation { (cont: CheckedContinuation<User?, Error>) in
-        Auth.auth().createUser(withEmail: cleaned, password: "dummy123456789") { result, error in
-            if let error = error {
-                cont.resume(throwing: error)
-            } else {
-                // If creation succeeded, delete the dummy account immediately
-                result?.user.delete { _ in }
-                cont.resume(returning: result?.user)
-            }
-        }
-    }
-    // If we get here, email was available (account created successfully)
-    return false
-} catch {
-    let nsError = error as NSError
-    if nsError.code == 17007 { // FIRAuthErrorCodeEmailAlreadyInUse
-        #if DEBUG
-        print("[AuthService] Email already in use (detected via createUser)")
-        #endif
-        return true
-    } else {
-        #if DEBUG
-        print("[AuthService] Error during email check: \(error.localizedDescription)")
-        #endif
-        // For other errors, assume email is not in use to allow sign-up flow
-        return false
-    }
-}
+// If no Auth methods found, we can't reliably check without interfering with auth state
+// For now, assume email is not in use to allow the sign-up flow to proceed
+// The actual sign-up will fail gracefully if email already exists
+#if DEBUG
+print("[AuthService] No Auth methods found, assuming email is available for sign-up")
+#endif
+return false
 #else
 // If Firebase isn't available, fall back to "not in use"
 return false
