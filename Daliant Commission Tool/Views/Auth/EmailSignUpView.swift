@@ -17,6 +17,7 @@ struct EmailSignUpView: View {
     @State private var serverErrorMessage: String? = nil
     @State private var attemptedSubmit = false
     @FocusState private var emailFocused: Bool
+    @Environment(\.dismiss) private var dismiss
 
     /// Called when a valid email is submitted.
     var onNext: ((String) -> Void)? = nil
@@ -91,13 +92,27 @@ struct EmailSignUpView: View {
                     }
 
 
-                    if showError || serverErrorMessage != nil {                        HStack(spacing: DS.Spacing.sm) {
-                            Image(systemName: "exclamationmark.circle.fill")
-                                .foregroundStyle(Color.red)
-                        Text(serverErrorMessage ?? "Enter a valid email address.")
+                    if showError || serverErrorMessage != nil {
+                        VStack(alignment: .leading, spacing: DS.Spacing.xs) {
+                            HStack(spacing: DS.Spacing.sm) {
+                                Image(systemName: "exclamationmark.circle.fill")
+                                    .foregroundStyle(Color.red)
+                                Text(serverErrorMessage ?? "Enter a valid email address.")
+                            }
+                            .font(DS.Font.caption)
+                            .foregroundStyle(Color.red)
+                            
+                            // Show "Sign in instead" link when email is already in use
+                            if serverErrorMessage?.contains("already in use") == true {
+                                Button("Sign in instead") {
+                                    // Navigate to sign in flow
+                                    navigateToSignIn()
+                                }
+                                .font(DS.Font.caption)
+                                .foregroundStyle(.blue)
+                                .padding(.leading, DS.Spacing.lg) // Align with the error text
+                            }
                         }
-                        .font(DS.Font.caption)
-                        .foregroundStyle(Color.red)
                     }
 
                     Spacer(minLength: 0)
@@ -158,11 +173,16 @@ struct EmailSignUpView: View {
                 }
             } catch {
                 // Friendly fallback
-                serverErrorMessage = "We couldn’t check this email right now. Please try again."
+                serverErrorMessage = "We couldn't check this email right now. Please try again."
                 // attemptedSubmit = true
             }
         }
-
+    }
+    
+    private func navigateToSignIn() {
+        // Navigate back to the sign-in flow using SwiftUI's dismiss
+        // This will pop back to the previous view in the navigation stack
+        dismiss()
     }
 }
 
