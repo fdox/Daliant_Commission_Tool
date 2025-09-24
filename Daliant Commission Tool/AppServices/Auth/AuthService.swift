@@ -47,7 +47,7 @@ let cleaned = email.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
 
 // First try Firebase Auth's fetchSignInMethods
 do {
-    let authMethods = try await withCheckedThrowingContinuation { cont in
+    let authMethods = try await withCheckedThrowingContinuation { (cont: CheckedContinuation<[String], Error>) in
         Auth.auth().fetchSignInMethods(forEmail: cleaned) { methods, error in
             if let error { cont.resume(throwing: error); return }
             cont.resume(returning: methods ?? [])
@@ -68,7 +68,7 @@ do {
     let db = Firestore.firestore()
     let query = db.collection("users").whereField("email", isEqualTo: cleaned).limit(to: 1)
     
-    let snapshot = try await withCheckedThrowingContinuation { cont in
+    let snapshot = try await withCheckedThrowingContinuation { (cont: CheckedContinuation<QuerySnapshot, Error>) in
         query.getDocuments { snapshot, error in
             if let error { cont.resume(throwing: error); return }
             cont.resume(returning: snapshot!)
