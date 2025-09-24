@@ -71,20 +71,12 @@ do {
     }
 } catch {
     // If Auth check fails, continue to Firestore check
-    #if DEBUG
-    print("[AuthService] Auth fetchSignInMethods failed: \(error)")
-    print("[AuthService] Auth error details: \(error.localizedDescription)")
-    #endif
 }
 
 // If no Auth methods found, check Firestore users collection
 do {
     let db = Firestore.firestore()
     let query = db.collection("users").whereField("email", isEqualTo: cleaned).limit(to: 1)
-    
-    #if DEBUG
-    print("[AuthService] Executing Firestore query for email: '\(cleaned)'")
-    #endif
     
     let snapshot = try await withCheckedThrowingContinuation { (cont: CheckedContinuation<QuerySnapshot, Error>) in
         query.getDocuments { snapshot, error in
@@ -96,24 +88,8 @@ do {
         }
     }
     
-    let emailExists = !snapshot.documents.isEmpty
-    #if DEBUG
-    print("[AuthService] Firestore query completed:")
-    print("[AuthService] - Email searched: '\(cleaned)'")
-    print("[AuthService] - Documents found: \(snapshot.documents.count)")
-    print("[AuthService] - Email exists: \(emailExists)")
-    if !snapshot.documents.isEmpty {
-        for (index, doc) in snapshot.documents.enumerated() {
-            print("[AuthService] - Document \(index): ID=\(doc.documentID), email=\(doc.data()["email"] ?? "nil")")
-        }
-    }
-    #endif
-    return emailExists
+    return !snapshot.documents.isEmpty
 } catch {
-    #if DEBUG
-    print("[AuthService] Firestore email check failed: \(error)")
-    print("[AuthService] Firestore error details: \(error.localizedDescription)")
-    #endif
     // For Firestore errors, assume email is not in use to allow sign-up flow
     return false
 }
