@@ -19,6 +19,9 @@ import FirebaseAuth
 #if canImport(FirebaseFirestore)
 import FirebaseFirestore
 #endif
+#if canImport(FirebaseCore)
+import FirebaseCore
+#endif
 
 
 @MainActor
@@ -45,6 +48,16 @@ enum AuthService {
 #if canImport(FirebaseAuth) && canImport(FirebaseFirestore)
 let cleaned = email.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
 
+// Check if Firebase is configured
+#if canImport(FirebaseCore)
+guard FirebaseApp.app() != nil else {
+    #if DEBUG
+    print("[AuthService] Firebase not configured")
+    #endif
+    return false
+}
+#endif
+
 // First try Firebase Auth's fetchSignInMethods
 do {
     let authMethods = try await withCheckedThrowingContinuation { (cont: CheckedContinuation<[String], Error>) in
@@ -60,6 +73,7 @@ do {
     // If Auth check fails, continue to Firestore check
     #if DEBUG
     print("[AuthService] Auth fetchSignInMethods failed: \(error)")
+    print("[AuthService] Auth error details: \(error.localizedDescription)")
     #endif
 }
 
@@ -79,6 +93,7 @@ do {
 } catch {
     #if DEBUG
     print("[AuthService] Firestore email check failed: \(error)")
+    print("[AuthService] Firestore error details: \(error.localizedDescription)")
     #endif
     throw error
 }
