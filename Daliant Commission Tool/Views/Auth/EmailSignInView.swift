@@ -14,15 +14,16 @@ struct EmailSignInView: View {
 
     var body: some View {
         VStack(spacing: 24) {
-            VStack(alignment: .leading, spacing: 8) {
-                Text("Log in with Email")
-                    .font(.system(size: 28, weight: .bold))
+            VStack(spacing: DS.Spacing.xs) {
+                Text("Sign in with Email")
+                    .font(DS.Font.title)
                     .foregroundStyle(.primary)
                 Text("Enter your email to continue.")
-                    .font(.subheadline)
+                    .font(DS.Font.sub)
                     .foregroundStyle(.secondary)
             }
-            .padding(.top, 16)
+            .padding(.top, DS.Spacing.xl + DS.Spacing.lg)
+            .padding(.horizontal, DS.Spacing.xl)
 
 
             VStack(alignment: .leading, spacing: 8) {
@@ -30,43 +31,40 @@ struct EmailSignInView: View {
                     .font(.subheadline)
                     .foregroundStyle(.secondary)
 
-                TextField("example@mail.com", text: $email)
-                    .keyboardType(.emailAddress)
-                    .textContentType(.emailAddress)
-                    .textInputAutocapitalization(.never)
-                    .autocorrectionDisabled(true)
-                    .focused($isFocused)
-                    .padding(12)
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 12)
-                            .stroke(isFocused ? .black : .gray.opacity(0.3), lineWidth: 1)
-                    )
+                ZStack(alignment: .leading) {
+                    if email.isEmpty {
+                        Text(verbatim: "example@mail.com")
+                            .foregroundStyle(.secondary)          // gray overlay placeholder
+                            .padding(.horizontal, 16)
+                    }
+                    TextField("", text: $email)
+                        .keyboardType(.emailAddress)
+                        .textContentType(.emailAddress)
+                        .textInputAutocapitalization(.never)
+                        .autocorrectionDisabled(true)
+                        .focused($isFocused)
+                        .padding(12)
+                }
+                .overlay(
+                    RoundedRectangle(cornerRadius: 12)
+                        .stroke(isFocused ? .black : .gray.opacity(0.3), lineWidth: 1)
+                )
             }
 
             Spacer(minLength: 0)
         }
         .safeAreaInset(edge: .bottom) {
-            VStack(spacing: 0) {
-                Divider()
-                Button("Next") {
-                    onNext(email.trimmingCharacters(in: .whitespacesAndNewlines))
-                }
-                .frame(maxWidth: .infinity)
-                .padding(.vertical, 14)
-                .font(.headline)
-                .foregroundColor(.white)
-                .background(Color.black)
-                .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
-                .padding(.horizontal, 20)
-                .padding(.top, 12)
-                .disabled(!isValidEmail(email))
-                .opacity(isValidEmail(email) ? 1 : 0.5)
-                .padding(.bottom, 8)
+            DSUI.StickyCtaBar(
+                title: "Next",
+                isEnabled: isValidEmail(email),
+                useBackground: false,
+                tint: .black
+            ) {
+                onNext(email.trimmingCharacters(in: .whitespacesAndNewlines))
             }
-            .background(.ultraThinMaterial)
         }
 
-        .padding(.horizontal, 20)
+        .padding(.horizontal, DS.Spacing.xl)
         .onAppear { isFocused = true }
         .navigationBarBackButtonHidden(false)
     }

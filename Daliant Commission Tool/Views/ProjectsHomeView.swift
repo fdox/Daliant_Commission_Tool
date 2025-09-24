@@ -11,8 +11,12 @@ struct ProjectsHomeView: View {
     var body: some View {
         NavigationStack {
             content(for: filteredProjects())
-                .navigationTitle("Projects")
+                .navigationBarTitleDisplayMode(.inline)
                 .toolbar {
+                    ToolbarItem(placement: .principal) {
+                        Text("Projects")
+                            .font(DS.Font.title)
+                    }
                     // + button
                     ToolbarItem(placement: .primaryAction) {
                         Button {

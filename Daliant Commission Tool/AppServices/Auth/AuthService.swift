@@ -13,6 +13,10 @@
 //
 
 import Foundation
+#if canImport(FirebaseAuth)
+import FirebaseAuth
+#endif
+
 
 @MainActor
 enum AuthService {
@@ -32,4 +36,22 @@ enum AuthService {
     static func sendPasswordReset(email: String) async throws {
         try await AuthState.shared.sendPasswordReset(email: email)
     }
+    // Anchor: AUTH_SERVICE_EMAIL_CHECK
+    /// Returns true if Firebase has any sign‑in methods for the email (i.e., an account exists).
+    static func isEmailInUse(_ email: String) async throws -> Bool {
+#if canImport(FirebaseAuth)
+let cleaned = email.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
+return try await withCheckedThrowingContinuation { cont in
+    FirebaseAuth.Auth.auth().fetchSignInMethods(forEmail: cleaned) { methods, error in
+        if let error { cont.resume(throwing: error); return }
+        cont.resume(returning: !(methods ?? []).isEmpty)
+    }
+}
+#else
+// If FirebaseAuth isn't in this target, fall back to "not in use"
+return false
+#endif
+
+    }
+
 }

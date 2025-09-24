@@ -14,6 +14,7 @@ import UIKit
 /// UI-only: validates email format; on submit/Next calls onNext(email).
 struct EmailSignUpView: View {
     @State private var email: String = ""
+    @State private var serverErrorMessage: String? = nil
     @State private var attemptedSubmit = false
     @FocusState private var emailFocused: Bool
 
@@ -90,11 +91,10 @@ struct EmailSignUpView: View {
                     }
 
 
-                    if showError {
-                        HStack(spacing: DS.Spacing.sm) {
+                    if showError || serverErrorMessage != nil {                        HStack(spacing: DS.Spacing.sm) {
                             Image(systemName: "exclamationmark.circle.fill")
                                 .foregroundStyle(Color.red)
-                            Text("Enter a valid email address.")
+                        Text(serverErrorMessage ?? "Enter a valid email address.")
                         }
                         .font(DS.Font.caption)
                         .foregroundStyle(Color.red)
@@ -131,10 +131,38 @@ struct EmailSignUpView: View {
     }
 
     private func attemptNext() {
-        attemptedSubmit = true
-        if isValid {
-            onNext?(email.trimmingCharacters(in: .whitespacesAndNewlines))
+        // Clear any prior server message
+        serverErrorMessage = nil
+
+        let trimmed = email.trimmingCharacters(in: .whitespacesAndNewlines)
+
+        // If your button already guards invalid input, this is just a safety net.
+        guard isValid else {
+            // Keep your existing invalid message pathway (if you use attemptedSubmit/showError, keep it).
+            // Example (only if you have this flag):
+            // attemptedSubmit = true
+            return
         }
+
+        Task {
+            do {
+                let inUse = try await AuthService.isEmailInUse(trimmed)
+                if inUse {
+                    // Show inline red row with this copy
+                    serverErrorMessage = "That email is already in use. Please sign in instead."
+                    // If your UI only shows the row when `showError` is true, also toggle that flag:
+                    // attemptedSubmit = true
+                } else {
+                    // Proceed to CreatePasswordView
+                    onNext?(trimmed)
+                }
+            } catch {
+                // Friendly fallback
+                serverErrorMessage = "We couldn’t check this email right now. Please try again."
+                // attemptedSubmit = true
+            }
+        }
+
     }
 }
 

@@ -20,11 +20,8 @@ struct PasswordSignInView: View {
         VStack(spacing: 24) {
             VStack(alignment: .leading, spacing: 8) {
                 Text("Verify Your Daliant Password")
-                    .font(.system(size: 28, weight: .bold))
+                    .font(DS.Font.title)
                     .foregroundStyle(.primary)
-                Text(email)
-                    .font(.subheadline)
-                    .foregroundStyle(.secondary)
             }
             .padding(.top, 16)
 
@@ -81,33 +78,22 @@ struct PasswordSignInView: View {
             Spacer(minLength: 0)
         }
         .safeAreaInset(edge: .bottom) {
-            VStack(spacing: 0) {
-                Divider()
-                Button(isLoading ? "Logging In…" : "Log In") {
-                    Task {
-                        isLoading = true
-                        defer { isLoading = false }
-                        do {
-                            try await AuthService.signIn(email: email, password: password)
-                            // Success: AuthGateView flips to signed-in automatically.
-                        } catch {
-                            message = friendlyAuthMessage(error)
-                        }
+            DSUI.StickyCtaBar(
+                title: isLoading ? "Logging In…" : "Log In",
+                isEnabled: !password.isEmpty && !isLoading,
+                useBackground: false,
+                tint: .black
+            ) {
+                Task {
+                    isLoading = true
+                    defer { isLoading = false }
+                    do {
+                        try await AuthService.signIn(email: email, password: password)
+                    } catch {
+                        message = friendlyAuthMessage(error)
                     }
                 }
-                .frame(maxWidth: .infinity)
-                .padding(.vertical, 14)
-                .font(.headline)
-                .foregroundColor(.white)
-                .background(Color.black)
-                .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
-                .padding(.horizontal, 20)
-                .padding(.top, 12)
-                .disabled(password.isEmpty || isLoading)
-                .opacity((password.isEmpty || isLoading) ? 0.5 : 1)
-                .padding(.bottom, 8)
             }
-            .background(.ultraThinMaterial)
         }
 
         .padding(.horizontal, 20)
