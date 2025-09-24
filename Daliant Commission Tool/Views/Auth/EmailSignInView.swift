@@ -90,13 +90,12 @@ struct EmailSignInView: View {
         do {
             let emailInUse = try await AuthService.isEmailInUse(trimmedEmail)
             if emailInUse {
-                // Email exists, proceed to password sign-in
+                // Email exists, proceed to password sign-in (no error message)
                 onNext(trimmedEmail)
             } else {
-                // Email doesn't exist, show message or proceed to sign-up
-                errorMessage = "No account found with this email. Would you like to create one?"
-                // For now, still proceed to password view - the user can choose to create account there
-                onNext(trimmedEmail)
+                // Email doesn't exist, show message and DON'T proceed
+                errorMessage = "No account found with this email. Please check your email or create a new account."
+                // Do NOT call onNext() - stay on this view
             }
         } catch {
             errorMessage = "Unable to check email. Please try again."
