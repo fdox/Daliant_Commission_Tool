@@ -77,13 +77,34 @@ do {
     #endif
 }
 
-// If no Auth methods found, we can't reliably check without interfering with auth state
-// For now, assume email is not in use to allow the sign-up flow to proceed
-// The actual sign-up will fail gracefully if email already exists
-#if DEBUG
-print("[AuthService] No Auth methods found, assuming email is available for sign-up")
-#endif
-return false
+// If no Auth methods found, check Firestore users collection
+do {
+    let db = Firestore.firestore()
+    let query = db.collection("users").whereField("email", isEqualTo: cleaned).limit(to: 1)
+    
+    let snapshot = try await withCheckedThrowingContinuation { (cont: CheckedContinuation<QuerySnapshot, Error>) in
+        query.getDocuments { snapshot, error in
+            if let error = error {
+                cont.resume(throwing: error)
+            } else {
+                cont.resume(returning: snapshot!)
+            }
+        }
+    }
+    
+    let emailExists = !snapshot.documents.isEmpty
+    #if DEBUG
+    print("[AuthService] Firestore email check result: \(emailExists) for email: \(cleaned)")
+    #endif
+    return emailExists
+} catch {
+    #if DEBUG
+    print("[AuthService] Firestore email check failed: \(error)")
+    print("[AuthService] Firestore error details: \(error.localizedDescription)")
+    #endif
+    // For Firestore errors, assume email is not in use to allow sign-up flow
+    return false
+}
 #else
 // If Firebase isn't available, fall back to "not in use"
 return false
