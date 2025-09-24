@@ -82,6 +82,10 @@ do {
     let db = Firestore.firestore()
     let query = db.collection("users").whereField("email", isEqualTo: cleaned).limit(to: 1)
     
+    #if DEBUG
+    print("[AuthService] Executing Firestore query for email: '\(cleaned)'")
+    #endif
+    
     let snapshot = try await withCheckedThrowingContinuation { (cont: CheckedContinuation<QuerySnapshot, Error>) in
         query.getDocuments { snapshot, error in
             if let error = error {
@@ -94,7 +98,15 @@ do {
     
     let emailExists = !snapshot.documents.isEmpty
     #if DEBUG
-    print("[AuthService] Firestore email check result: \(emailExists) for email: \(cleaned)")
+    print("[AuthService] Firestore query completed:")
+    print("[AuthService] - Email searched: '\(cleaned)'")
+    print("[AuthService] - Documents found: \(snapshot.documents.count)")
+    print("[AuthService] - Email exists: \(emailExists)")
+    if !snapshot.documents.isEmpty {
+        for (index, doc) in snapshot.documents.enumerated() {
+            print("[AuthService] - Document \(index): ID=\(doc.documentID), email=\(doc.data()["email"] ?? "nil")")
+        }
+    }
     #endif
     return emailExists
 } catch {
