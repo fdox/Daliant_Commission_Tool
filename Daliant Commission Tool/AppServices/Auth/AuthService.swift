@@ -77,25 +77,38 @@ do {
     #endif
 }
 
-// If no Auth methods found, check Firestore users collection
+// If no Auth methods found, try a different approach:
+// Attempt to create a temporary account to see if email is already in use
+// This will fail with "email-already-in-use" if the email exists
 do {
-    let db = Firestore.firestore()
-    let query = db.collection("users").whereField("email", isEqualTo: cleaned).limit(to: 1)
-    
-    let snapshot = try await withCheckedThrowingContinuation { (cont: CheckedContinuation<QuerySnapshot, Error>) in
-        query.getDocuments { snapshot, error in
-            if let error { cont.resume(throwing: error); return }
-            cont.resume(returning: snapshot!)
+    // Try to create account with a dummy password - this will fail if email exists
+    let _ = try await withCheckedThrowingContinuation { (cont: CheckedContinuation<User?, Error>) in
+        Auth.auth().createUser(withEmail: cleaned, password: "dummy123456789") { result, error in
+            if let error = error {
+                cont.resume(throwing: error)
+            } else {
+                // If creation succeeded, delete the dummy account immediately
+                result?.delete { _ in }
+                cont.resume(returning: result)
+            }
         }
     }
-    
-    return !snapshot.documents.isEmpty
+    // If we get here, email was available (account created successfully)
+    return false
 } catch {
-    #if DEBUG
-    print("[AuthService] Firestore email check failed: \(error)")
-    print("[AuthService] Firestore error details: \(error.localizedDescription)")
-    #endif
-    throw error
+    let nsError = error as NSError
+    if nsError.code == 17007 { // FIRAuthErrorCodeEmailAlreadyInUse
+        #if DEBUG
+        print("[AuthService] Email already in use (detected via createUser)")
+        #endif
+        return true
+    } else {
+        #if DEBUG
+        print("[AuthService] Error during email check: \(error.localizedDescription)")
+        #endif
+        // For other errors, assume email is not in use to allow sign-up flow
+        return false
+    }
 }
 #else
 // If Firebase isn't available, fall back to "not in use"
