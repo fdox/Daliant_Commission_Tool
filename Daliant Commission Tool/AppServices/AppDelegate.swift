@@ -4,6 +4,7 @@
 //
 //  Created by Fred Dox on 9/2/25.
 //
+// GH Sync Test: marker 2025-09-24 (safe no-op change)
 
 import UIKit
 import FirebaseAuth
