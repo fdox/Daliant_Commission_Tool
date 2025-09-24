@@ -16,6 +16,9 @@ import Foundation
 #if canImport(FirebaseAuth)
 import FirebaseAuth
 #endif
+#if canImport(FirebaseFirestore)
+import FirebaseFirestore
+#endif
 
 
 @MainActor
@@ -45,7 +48,7 @@ let cleaned = email.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
 // First try Firebase Auth's fetchSignInMethods
 do {
     let authMethods = try await withCheckedThrowingContinuation { cont in
-        FirebaseAuth.Auth.auth().fetchSignInMethods(forEmail: cleaned) { methods, error in
+        Auth.auth().fetchSignInMethods(forEmail: cleaned) { methods, error in
             if let error { cont.resume(throwing: error); return }
             cont.resume(returning: methods ?? [])
         }
@@ -62,7 +65,7 @@ do {
 
 // If no Auth methods found, check Firestore users collection
 do {
-    let db = FirebaseFirestore.Firestore.firestore()
+    let db = Firestore.firestore()
     let query = db.collection("users").whereField("email", isEqualTo: cleaned).limit(to: 1)
     
     let snapshot = try await withCheckedThrowingContinuation { cont in
