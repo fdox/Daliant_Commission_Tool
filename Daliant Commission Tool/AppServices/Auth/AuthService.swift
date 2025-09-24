@@ -88,8 +88,8 @@ do {
                 cont.resume(throwing: error)
             } else {
                 // If creation succeeded, delete the dummy account immediately
-                result?.delete { _ in }
-                cont.resume(returning: result)
+                result?.user.delete { _ in }
+                cont.resume(returning: result?.user)
             }
         }
     }
