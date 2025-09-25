@@ -15,7 +15,7 @@ struct EmailSignInView: View {
     var onNext: (String) -> Void
 
     var body: some View {
-        VStack(spacing: 24) {
+        VStack(spacing: 0) {
             VStack(spacing: DS.Spacing.xs) {
                 Text("Sign in with Email")
                     .font(DS.Font.title)
@@ -27,11 +27,12 @@ struct EmailSignInView: View {
             .padding(.top, DS.Spacing.xl + DS.Spacing.lg)
             .padding(.horizontal, DS.Spacing.xl)
 
-
-            VStack(alignment: .leading, spacing: 8) {
-                Text("Enter your email")
-                    .font(.subheadline)
-                    .foregroundStyle(.secondary)
+            ScrollView(showsIndicators: false) {
+                VStack(alignment: .leading, spacing: DS.Spacing.md) {
+                    VStack(alignment: .leading, spacing: 8) {
+                        Text("Enter your email")
+                            .font(.subheadline)
+                            .foregroundStyle(.secondary)
 
                 ZStack(alignment: .leading) {
                     if email.isEmpty {
@@ -60,7 +61,11 @@ struct EmailSignInView: View {
                     .padding(.horizontal, DS.Spacing.xl)
             }
             
-            Spacer(minLength: 0)
+                    Spacer(minLength: 0)
+                }
+                .padding(.horizontal, DS.Spacing.xl)
+                .padding(.top, DS.Spacing.lg)
+            }
         }
         .safeAreaInset(edge: .bottom) {
             DSUI.StickyCtaBar(
@@ -74,8 +79,6 @@ struct EmailSignInView: View {
                 }
             }
         }
-
-        .padding(.horizontal, DS.Spacing.xl)
         .onAppear { isFocused = true }
         .navigationBarBackButtonHidden(false)
     }
