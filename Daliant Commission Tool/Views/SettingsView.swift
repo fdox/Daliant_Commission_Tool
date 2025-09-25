@@ -3,6 +3,9 @@ import SwiftData
 #if canImport(CloudKit)
 import CloudKit
 #endif
+#if canImport(FirebaseAuth)
+import FirebaseAuth
+#endif
 
 struct SettingsView: View {
     @Environment(\.modelContext) private var context
@@ -388,7 +391,6 @@ struct SettingsView: View {
     // MARK: - Helpers
     private func loadUserData() {
         #if canImport(FirebaseAuth)
-        import FirebaseAuth
         if let user = Auth.auth().currentUser {
             fullName = user.displayName ?? ""
             emailAddress = user.email ?? ""
@@ -400,7 +402,6 @@ struct SettingsView: View {
     
     private func saveProfile() async {
         #if canImport(FirebaseAuth)
-        import FirebaseAuth
         guard let user = Auth.auth().currentUser else { return }
         
         do {
@@ -454,7 +455,6 @@ struct SettingsView: View {
             
             // Set owner UID if not already set
             #if canImport(FirebaseAuth)
-            import FirebaseAuth
             if org.ownerUid == nil, let uid = Auth.auth().currentUser?.uid {
                 org.ownerUid = uid
             }
