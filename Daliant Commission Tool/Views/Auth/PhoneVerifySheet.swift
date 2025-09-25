@@ -41,7 +41,7 @@ struct PhoneVerifySheet: View {
                         HStack { Image(systemName: "message")
                             Text("Send code") }
                     }
-                    .buttonStyle(.borderedProminent)
+                    .buttonStyle(DSUI.PrimaryButtonStyle(tint: .blue))
                     .disabled(isSending || phone.trimmingCharacters(in: .whitespaces).isEmpty)
 
                     if isSending { ProgressView() }
@@ -67,7 +67,7 @@ struct PhoneVerifySheet: View {
                         HStack { Image(systemName: "checkmark.seal")
                             Text("Verify & Link") }
                     }
-                    .buttonStyle(.borderedProminent)
+                    .buttonStyle(DSUI.PrimaryButtonStyle(tint: .blue))
                     .disabled(isLinking || code.trimmingCharacters(in: .whitespaces).isEmpty)
 
                     if isLinking { ProgressView() }

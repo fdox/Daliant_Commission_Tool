@@ -54,7 +54,8 @@ struct EmailPasswordSignInView: View {
                             }
                         }
                     }
-                    .font(.footnote)
+                    .font(DS.Font.caption.weight(.semibold))
+                    .foregroundStyle(.blue)
 
                 }
 

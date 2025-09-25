@@ -70,8 +70,8 @@ struct PasswordSignInView: View {
                         }
                     }
                 }
-                .font(.footnote.weight(.semibold))
-                .foregroundStyle(.black)
+                .font(DS.Font.caption.weight(.semibold))
+                .foregroundStyle(.blue)
                 .padding(.top, 8)
             }
 

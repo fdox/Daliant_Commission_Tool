@@ -61,16 +61,17 @@ struct VerifyAccountView: View {
                              : "Send verification email")
                     }
                 }
-                .buttonStyle(.borderedProminent)
+                .buttonStyle(DSUI.PrimaryButtonStyle(tint: .blue))
                 .disabled(isSending || cooldown > 0)
 
                 Button("I verified — Refresh status", action: refreshStatus)
+                    .buttonStyle(DSUI.OutlineButtonStyle(tint: .blue))
+                
                 Text("After you send the verification email, open your email app and tap the link. Or verify by phone — iOS will suggest the SMS code above the keyboard.")
                     .font(.footnote)
                     .foregroundStyle(.secondary)
                     .multilineTextAlignment(.center)
                     .padding(.top, 4)
-                    .buttonStyle(.bordered)
 
                 if let sendError {
                     Text(sendError)
@@ -90,7 +91,7 @@ struct VerifyAccountView: View {
                         Text("Verify phone")
                     }
                 }
-                .buttonStyle(.bordered)
+                .buttonStyle(DSUI.OutlineButtonStyle(tint: .blue))
 
                 .sheet(isPresented: $showPhoneSheet) {
                     PhoneVerifySheet { _ in
