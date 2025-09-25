@@ -304,9 +304,8 @@ struct SettingsView: View {
                             .font(.subheadline)
                             .foregroundStyle(.secondary)
                         
-                        Button("Invite Collaborator") {
-                            // TODO: Navigate to collaborator invitation view
-                            errorMessage = "Collaborator invitation feature coming soon!"
+                        NavigationLink("Invite Collaborator") {
+                            CollaboratorsView()
                         }
                         .buttonStyle(.borderedProminent)
                     }
@@ -319,10 +318,18 @@ struct SettingsView: View {
                             .font(.subheadline)
                             .foregroundStyle(.secondary)
                         
-                        Button("Set Up Business Info") {
-                            isEditingBusinessInfo = true
+                        HStack {
+                            Button("Set Up Business Info") {
+                                isEditingBusinessInfo = true
+                            }
+                            .buttonStyle(.bordered)
+                            
+                            Button("Join Business") {
+                                // TODO: Navigate to join business view
+                                errorMessage = "Join Business feature coming soon!"
+                            }
+                            .buttonStyle(.bordered)
                         }
-                        .buttonStyle(.bordered)
                     }
                 }
             }
@@ -380,6 +387,7 @@ struct SettingsView: View {
             await UserProfileService.shared.ensureProfile()
             loadUserData()
             loadBusinessInfo()
+            await loadBusinessInfoFromFirestore()
         }
         .navigationTitle("Account Settings")
         .toolbar { ToolbarItem(placement: .topBarTrailing) { Button("Done") { dismiss() } } }
@@ -440,6 +448,20 @@ struct SettingsView: View {
         }
     }
     
+    private func loadBusinessInfoFromFirestore() async {
+        if let org = orgs.first {
+            do {
+                try await OrgService.shared.loadBusinessInfoFromFirestore(org: org)
+                // Reload the local state after syncing from Firestore
+                loadBusinessInfo()
+            } catch {
+                #if DEBUG
+                print("[SettingsView] Failed to load business info from Firestore: \(error)")
+                #endif
+            }
+        }
+    }
+    
     private func saveBusinessInfo() async {
         do {
             let org = orgs.first ?? Org(name: businessName.isEmpty ? "Organization" : businessName)
@@ -466,6 +488,10 @@ struct SettingsView: View {
             }
             
             try context.save()
+            
+            // Sync to Firestore
+            try await OrgService.shared.syncBusinessInfoToFirestore(org: org)
+            
             isEditingBusinessInfo = false
             
         } catch {

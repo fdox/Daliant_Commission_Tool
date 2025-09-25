@@ -14,6 +14,9 @@ import FirebaseAuth
 #if canImport(FirebaseFirestore)
 import FirebaseFirestore
 #endif
+#if canImport(FirebaseCore)
+import FirebaseCore
+#endif
 
 @MainActor
 final class OrgService {
@@ -102,5 +105,64 @@ final class OrgService {
     private func defaultName(for email: String?) -> String {
         guard let email, let handle = email.split(separator: "@").first else { return "My Organization" }
         return handle.capitalized + " Org"
+    }
+    
+    // MARK: - Business Info Sync
+    
+    /// Syncs business information from local Org to Firestore
+    func syncBusinessInfoToFirestore(org: Org) async throws {
+        #if canImport(FirebaseAuth) && canImport(FirebaseFirestore) && canImport(FirebaseCore)
+        guard FirebaseApp.app() != nil else { return }
+        guard let ownerUid = org.ownerUid else { return }
+        
+        let db = Firestore.firestore()
+        let orgRef = db.collection("orgs").document(ownerUid)
+        
+        var businessData: [String: Any] = [
+            "updatedAt": FieldValue.serverTimestamp()
+        ]
+        
+        // Add business fields if they exist
+        if let businessName = org.businessName { businessData["businessName"] = businessName }
+        if let addressLine1 = org.addressLine1 { businessData["addressLine1"] = addressLine1 }
+        if let addressLine2 = org.addressLine2 { businessData["addressLine2"] = addressLine2 }
+        if let city = org.city { businessData["city"] = city }
+        if let state = org.state { businessData["state"] = state }
+        if let zipCode = org.zipCode { businessData["zipCode"] = zipCode }
+        
+        try await withCheckedThrowingContinuation { (cont: CheckedContinuation<Void, Error>) in
+            orgRef.setData(businessData, merge: true) { error in
+                if let error = error { cont.resume(throwing: error) }
+                else { cont.resume(returning: ()) }
+            }
+        }
+        #endif
+    }
+    
+    /// Loads business information from Firestore to local Org
+    func loadBusinessInfoFromFirestore(org: Org) async throws {
+        #if canImport(FirebaseAuth) && canImport(FirebaseFirestore) && canImport(FirebaseCore)
+        guard FirebaseApp.app() != nil else { return }
+        guard let ownerUid = org.ownerUid else { return }
+        
+        let db = Firestore.firestore()
+        let orgRef = db.collection("orgs").document(ownerUid)
+        
+        let doc = try await withCheckedThrowingContinuation { (cont: CheckedContinuation<DocumentSnapshot, Error>) in
+            orgRef.getDocument { doc, error in
+                if let error = error { cont.resume(throwing: error) }
+                else { cont.resume(returning: doc!) }
+            }
+        }
+        
+        if let data = doc.data() {
+            org.businessName = data["businessName"] as? String
+            org.addressLine1 = data["addressLine1"] as? String
+            org.addressLine2 = data["addressLine2"] as? String
+            org.city = data["city"] as? String
+            org.state = data["state"] as? String
+            org.zipCode = data["zipCode"] as? String
+        }
+        #endif
     }
 }
