@@ -96,7 +96,7 @@ struct PasswordSignInView: View {
             }
         }
 
-        .padding(.horizontal, 20)
+        .padding(.horizontal, DS.Spacing.xl)
         .onAppear { isFocused = true }
         .navigationBarBackButtonHidden(false)
     }
