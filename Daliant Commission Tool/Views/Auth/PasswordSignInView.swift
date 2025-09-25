@@ -17,19 +17,21 @@ struct PasswordSignInView: View {
     @FocusState private var isFocused: Bool
 
     var body: some View {
-        VStack(spacing: 24) {
+        VStack(spacing: 0) {
             VStack(alignment: .leading, spacing: 8) {
                 Text("Verify Your Daliant Password")
                     .font(DS.Font.title)
                     .foregroundStyle(.primary)
             }
-            .padding(.top, 16)
+            .padding(.top, DS.Spacing.xl + DS.Spacing.lg)
+            .padding(.horizontal, DS.Spacing.xl)
 
-
-            VStack(alignment: .leading, spacing: 8) {
-                Text("Enter your password")
-                    .font(.subheadline)
-                    .foregroundStyle(.secondary)
+            ScrollView(showsIndicators: false) {
+                VStack(alignment: .leading, spacing: DS.Spacing.md) {
+                    VStack(alignment: .leading, spacing: 8) {
+                        Text("Enter your password")
+                            .font(.subheadline)
+                            .foregroundStyle(.secondary)
 
                 HStack {
                     if reveal {
@@ -75,7 +77,11 @@ struct PasswordSignInView: View {
                 .padding(.top, 8)
             }
 
-            Spacer(minLength: 0)
+                    Spacer(minLength: 0)
+                }
+                .padding(.horizontal, DS.Spacing.xl)
+                .padding(.top, DS.Spacing.lg)
+            }
         }
         .safeAreaInset(edge: .bottom) {
             DSUI.StickyCtaBar(
@@ -95,8 +101,6 @@ struct PasswordSignInView: View {
                 }
             }
         }
-
-        .padding(.horizontal, DS.Spacing.xl)
         .onAppear { isFocused = true }
         .navigationBarBackButtonHidden(false)
     }
