@@ -51,6 +51,8 @@
 		9E306CDC2E7FB85400258FE6 /* UserStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9E306CDB2E7FB85300258FE6 /* UserStore.swift */; };
 		9E306CDE2E80780200258FE6 /* EmailSignInView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9E306CDD2E80780200258FE6 /* EmailSignInView.swift */; };
 		9E306CE02E80782000258FE6 /* PasswordSignInView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9E306CDF2E80781F00258FE6 /* PasswordSignInView.swift */; };
+		9E35E1FD2E86112C00DA285E /* InviteCollaboratorsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9E35E1FC2E86112C00DA285E /* InviteCollaboratorsView.swift */; };
+		9E35E1FF2E86113500DA285E /* CollaboratorsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9E35E1FE2E86113500DA285E /* CollaboratorsView.swift */; };
 		9E505B962E5ACB4000B1BFE2 /* Org.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9E505B8B2E5ACB4000B1BFE2 /* Org.swift */; };
 		9E505B972E5ACB4000B1BFE2 /* Daliant_Commission_ToolApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9E505B942E5ACB4000B1BFE2 /* Daliant_Commission_ToolApp.swift */; };
 		9E505B982E5ACB4000B1BFE2 /* OrgOnboardingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9E505B8F2E5ACB4000B1BFE2 /* OrgOnboardingView.swift */; };
@@ -152,6 +154,8 @@
 		9E306CDB2E7FB85300258FE6 /* UserStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserStore.swift; sourceTree = "<group>"; };
 		9E306CDD2E80780200258FE6 /* EmailSignInView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmailSignInView.swift; sourceTree = "<group>"; };
 		9E306CDF2E80781F00258FE6 /* PasswordSignInView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PasswordSignInView.swift; sourceTree = "<group>"; };
+		9E35E1FC2E86112C00DA285E /* InviteCollaboratorsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InviteCollaboratorsView.swift; sourceTree = "<group>"; };
+		9E35E1FE2E86113500DA285E /* CollaboratorsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CollaboratorsView.swift; sourceTree = "<group>"; };
 		9E505B422E5A4F6300B1BFE2 /* Daliant Commission Tool.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Daliant Commission Tool.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		9E505B512E5A4F6500B1BFE2 /* Daliant Commission ToolTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "Daliant Commission ToolTests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 		9E505B5B2E5A4F6500B1BFE2 /* Daliant Commission ToolUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "Daliant Commission ToolUITests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -270,6 +274,8 @@
 		9E2F1CF02E6B686100B2B3AF /* Settings */ = {
 			isa = PBXGroup;
 			children = (
+				9E35E1FE2E86113500DA285E /* CollaboratorsView.swift */,
+				9E35E1FC2E86112C00DA285E /* InviteCollaboratorsView.swift */,
 				9E2F1CF12E6B686700B2B3AF /* DevSyncSettingsSection.swift */,
 			);
 			path = Settings;
@@ -698,6 +704,7 @@
 				9E2F1CEF2E6B684200B2B3AF /* LiveSyncCenter.swift in Sources */,
 				9E2F1CF42E6B937800B2B3AF /* AutosaveCenter.swift in Sources */,
 				9EF3D1F32E5FD4CF005D624B /* CommissioningClient.swift in Sources */,
+				9E35E1FF2E86113500DA285E /* CollaboratorsView.swift in Sources */,
 				9E306CD92E7FB83100258FE6 /* AuthService.swift in Sources */,
 				9E306CDC2E7FB85400258FE6 /* UserStore.swift in Sources */,
 				9EF3D1FE2E60AEFF005D624B /* ShareSheet.swift in Sources */,
@@ -717,6 +724,7 @@
 				9EF7E5632E653C77002B9BFE /* OrgSharingView.swift in Sources */,
 				9E2F1D1A2E76692300B2B3AF /* PhoneVerificationCoordinator.swift in Sources */,
 				9EF3D2072E60F1E4005D624B /* JSONExportButton.swift in Sources */,
+				9E35E1FD2E86112C00DA285E /* InviteCollaboratorsView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
