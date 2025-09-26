@@ -203,7 +203,8 @@ final class OrgService {
             }
         }
         
-        if let doc = snap.documents.first, let data = doc.data() {
+        if let doc = snap.documents.first {
+            let data = doc.data()
             org.businessName = data["businessName"] as? String
             org.addressLine1 = data["addressLine1"] as? String
             org.addressLine2 = data["addressLine2"] as? String
