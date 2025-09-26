@@ -53,14 +53,17 @@ final class OrgService {
         }
 
         var orgName: String
+        var businessData: [String: Any] = [:]
         if let doc = snap.documents.first {
-            orgName = (doc.data()["name"] as? String) ?? defaultName(for: user.email)
+            let data = doc.data()
+            orgName = (data["name"] as? String) ?? defaultName(for: user.email)
+            businessData = data
             #if DEBUG
             print("[Org] Remote org exists: \(orgName)")
             #endif
         } else {
             // --- Create (bridged to async) ---
-            let orgId = user.uid         // single-org: key by owner uid
+            let orgId = generateShortOrgId()
             orgName = defaultName(for: user.email)
             try await withCheckedThrowingContinuation { (cont: CheckedContinuation<Void, Error>) in
                 coll.document(orgId).setData([
@@ -76,12 +79,12 @@ final class OrgService {
             }
 
             #if DEBUG
-            print("[Org] Created remote org: \(orgName)")
+            print("[Org] Created remote org: \(orgName) with ID: \(orgId)")
             #endif
         }
 
         // Mirror to local SwiftData: keep exactly one Org
-        try replaceLocalOrg(withName: orgName, context: context)
+        try replaceLocalOrg(withName: orgName, ownerUid: user.uid, businessData: businessData, context: context)
 
         #else
         try ensureLocalIfNeeded(context: context, name: "My Organization")
@@ -89,22 +92,42 @@ final class OrgService {
     }
 
     // MARK: - Local helpers (keep your existing ones; shown for completeness)
-    private func replaceLocalOrg(withName name: String, context: ModelContext) throws {
+    private func replaceLocalOrg(withName name: String, ownerUid: String? = nil, businessData: [String: Any] = [:], context: ModelContext) throws {
         let all = try context.fetch(FetchDescriptor<Org>())
         for o in all { context.delete(o) }
-        context.insert(Org(name: name))
+        let newOrg = Org(name: name)
+        newOrg.ownerUid = ownerUid
+        
+        // Set business data from Firestore
+        newOrg.shortId = businessData["id"] as? String
+        newOrg.businessName = businessData["businessName"] as? String
+        newOrg.addressLine1 = businessData["addressLine1"] as? String
+        newOrg.addressLine2 = businessData["addressLine2"] as? String
+        newOrg.city = businessData["city"] as? String
+        newOrg.state = businessData["state"] as? String
+        newOrg.zipCode = businessData["zipCode"] as? String
+        
+        context.insert(newOrg)
         try context.save()
     }
-    private func ensureLocalIfNeeded(context: ModelContext, name: String) throws {
+    private func ensureLocalIfNeeded(context: ModelContext, name: String, ownerUid: String? = nil) throws {
         let all = try context.fetch(FetchDescriptor<Org>())
         if all.isEmpty {
-            context.insert(Org(name: name))
+            let newOrg = Org(name: name)
+            newOrg.ownerUid = ownerUid
+            context.insert(newOrg)
             try context.save()
         }
     }
     private func defaultName(for email: String?) -> String {
         guard let email, let handle = email.split(separator: "@").first else { return "My Organization" }
         return handle.capitalized + " Org"
+    }
+    
+    /// Generates a short, unique organization ID (6 characters)
+    private func generateShortOrgId() -> String {
+        let characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
+        return String((0..<6).map { _ in characters.randomElement()! })
     }
     
     // MARK: - Business Info Sync
@@ -116,7 +139,26 @@ final class OrgService {
         guard let ownerUid = org.ownerUid else { return }
         
         let db = Firestore.firestore()
-        let orgRef = db.collection("orgs").document(ownerUid)
+        let coll = db.collection("orgs")
+        let query = coll.whereField("ownerUid", isEqualTo: ownerUid).limit(to: 1)
+        
+        // Find the organization document
+        let snap: QuerySnapshot = try await withCheckedThrowingContinuation { cont in
+            query.getDocuments { snapshot, error in
+                if let error = error { cont.resume(throwing: error); return }
+                guard let snapshot = snapshot else {
+                    cont.resume(throwing: NSError(domain: "Firestore", code: -1,
+                                                  userInfo: [NSLocalizedDescriptionKey: "No snapshot returned"]))
+                    return
+                }
+                cont.resume(returning: snapshot)
+            }
+        }
+        
+        guard let doc = snap.documents.first else {
+            throw NSError(domain: "OrgService", code: 404,
+                          userInfo: [NSLocalizedDescriptionKey: "Organization not found"])
+        }
         
         var businessData: [String: Any] = [
             "updatedAt": FieldValue.serverTimestamp()
@@ -131,7 +173,7 @@ final class OrgService {
         if let zipCode = org.zipCode { businessData["zipCode"] = zipCode }
         
         try await withCheckedThrowingContinuation { (cont: CheckedContinuation<Void, Error>) in
-            orgRef.setData(businessData, merge: true) { error in
+            doc.reference.setData(businessData, merge: true) { error in
                 if let error = error { cont.resume(throwing: error) }
                 else { cont.resume(returning: ()) }
             }
@@ -146,16 +188,22 @@ final class OrgService {
         guard let ownerUid = org.ownerUid else { return }
         
         let db = Firestore.firestore()
-        let orgRef = db.collection("orgs").document(ownerUid)
+        let coll = db.collection("orgs")
+        let query = coll.whereField("ownerUid", isEqualTo: ownerUid).limit(to: 1)
         
-        let doc = try await withCheckedThrowingContinuation { (cont: CheckedContinuation<DocumentSnapshot, Error>) in
-            orgRef.getDocument { doc, error in
-                if let error = error { cont.resume(throwing: error) }
-                else { cont.resume(returning: doc!) }
+        let snap: QuerySnapshot = try await withCheckedThrowingContinuation { cont in
+            query.getDocuments { snapshot, error in
+                if let error = error { cont.resume(throwing: error); return }
+                guard let snapshot = snapshot else {
+                    cont.resume(throwing: NSError(domain: "Firestore", code: -1,
+                                                  userInfo: [NSLocalizedDescriptionKey: "No snapshot returned"]))
+                    return
+                }
+                cont.resume(returning: snapshot)
             }
         }
         
-        if let data = doc.data() {
+        if let doc = snap.documents.first, let data = doc.data() {
             org.businessName = data["businessName"] as? String
             org.addressLine1 = data["addressLine1"] as? String
             org.addressLine2 = data["addressLine2"] as? String

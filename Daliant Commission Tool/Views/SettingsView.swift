@@ -33,7 +33,7 @@ struct SettingsView: View {
 
     var body: some View {
         Form {
-            Section("Profile") {
+            Section {
                 if isEditingProfile {
                     // Editable fields
                     VStack(alignment: .leading, spacing: 12) {
@@ -159,9 +159,12 @@ struct SettingsView: View {
                     }
                     .buttonStyle(.bordered)
                 }
+            } header: {
+                Text("Profile")
+                    .font(.headline)
             }
             
-            Section("Business Info") {
+            Section {
                 if isEditingBusinessInfo {
                     // Editable business info fields
                     VStack(alignment: .leading, spacing: 12) {
@@ -274,7 +277,7 @@ struct SettingsView: View {
                                     .font(.caption)
                                     .foregroundStyle(.secondary)
                                 Spacer()
-                                Text(org.id.uuidString.lowercased())
+                                Text(org.shortId ?? "Not set")
                                     .font(.footnote)
                                     .textSelection(.enabled)
                             }
@@ -286,9 +289,12 @@ struct SettingsView: View {
                     }
                     .buttonStyle(.bordered)
                 }
+            } header: {
+                Text("Business Info")
+                    .font(.headline)
             }
             
-            Section("Roles & Permissions") {
+            Section {
                 let org = orgs.first
                 let hasOrganization = org != nil && !(org?.businessName?.isEmpty ?? true)
                 
@@ -303,6 +309,9 @@ struct SettingsView: View {
                         Text("Add, view, or edit roles for \(org?.businessName ?? "Organization")")
                             .font(.subheadline)
                             .foregroundStyle(.secondary)
+                        
+                        Divider()
+                            .padding(.vertical, 8)
                         
                         NavigationLink("Invite Collaborator") {
                             CollaboratorsView()
@@ -332,6 +341,9 @@ struct SettingsView: View {
                         }
                     }
                 }
+            } header: {
+                Text("Roles & Permissions")
+                    .font(.headline)
             }
 
             // Single‑org mode: hide this whole section when multipleOrgsEnabled == false

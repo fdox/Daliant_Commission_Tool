@@ -4,6 +4,7 @@ import SwiftData
 @Model
 final class Org {
     @Attribute(.unique) var id: UUID
+    var shortId: String?  // Short 6-character ID for support
     var name: String
     var createdAt: Date
     var updatedAt: Date

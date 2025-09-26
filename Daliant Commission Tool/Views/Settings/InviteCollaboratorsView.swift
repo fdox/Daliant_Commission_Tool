@@ -127,6 +127,20 @@ struct InviteCollaboratorsView: View {
                     }
                     .padding(.horizontal, DS.Spacing.xl)
                 }
+                
+                // Send Invitation Button
+                VStack {
+                    Button(action: sendInvitation) {
+                        Text("Send Invitation")
+                            .font(DS.Font.heading)
+                            .frame(maxWidth: .infinity)
+                    }
+                    .buttonStyle(DSUI.PrimaryButtonStyle())
+                    .disabled(!isFormValid)
+                    .opacity(isFormValid ? 1.0 : 0.5)
+                    .padding(.horizontal, DS.Spacing.xl)
+                }
+                .padding(.top, DS.Spacing.lg)
             }
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
@@ -135,21 +149,10 @@ struct InviteCollaboratorsView: View {
                         dismiss()
                     }
                 }
-                
-                ToolbarItem(placement: .topBarTrailing) {
-                    Button("Send Invitation") {
-                        sendInvitation()
-                    }
-                    .disabled(!isFormValid)
-                    .opacity(isFormValid ? 1.0 : 0.5)
-                }
             }
-            .safeAreaInset(edge: .bottom) {
-                DSUI.StickyCtaBar(
-                    title: "Send Invitation",
-                    isEnabled: isFormValid,
-                    action: sendInvitation
-                )
+            .onTapGesture {
+                // Dismiss keyboard when tapping anywhere
+                emailFocused = false
             }
         }
     }

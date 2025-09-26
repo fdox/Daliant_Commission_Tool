@@ -7,11 +7,16 @@
 
 import SwiftUI
 import SwiftData
+#if canImport(FirebaseAuth)
+import FirebaseAuth
+#endif
 
 struct CollaboratorsView: View {
     @Environment(\.dismiss) private var dismiss
     @Query private var orgs: [Org]
     @State private var showingInviteView = false
+    @State private var ownerName = ""
+    @State private var ownerEmail = ""
     
     var body: some View {
         NavigationStack {
@@ -24,35 +29,22 @@ struct CollaboratorsView: View {
                             .foregroundStyle(.secondary)
                         
                         if let org = orgs.first {
-                            HStack {
-                                VStack(alignment: .leading, spacing: 4) {
-                                    Text("Full Name")
-                                        .font(.caption)
-                                        .foregroundStyle(.secondary)
-                                    Text("Owner Name") // TODO: Get from user profile
+                            VStack(alignment: .leading, spacing: 8) {
+                                Text(ownerName.isEmpty ? "Owner" : ownerName)
+                                    .font(.body)
+                                    .fontWeight(.medium)
+                                
+                                if let businessName = org.businessName, !businessName.isEmpty {
+                                    Text(businessName)
                                         .font(.body)
+                                        .foregroundStyle(.secondary)
                                 }
                                 
-                                Spacer()
-                                
-                                VStack(alignment: .trailing, spacing: 4) {
-                                    Text("Business Name")
-                                        .font(.caption)
-                                        .foregroundStyle(.secondary)
-                                    Text(org.businessName ?? "Not set")
-                                        .font(.body)
-                                }
-                                
-                                Spacer()
-                                
-                                VStack(alignment: .trailing, spacing: 4) {
-                                    Text("Email")
-                                        .font(.caption)
-                                        .foregroundStyle(.secondary)
-                                    Text("owner@example.com") // TODO: Get from user profile
-                                        .font(.body)
-                                }
+                                Text(ownerEmail.isEmpty ? "Email not available" : ownerEmail)
+                                    .font(.body)
+                                    .foregroundStyle(.secondary)
                             }
+                            .frame(maxWidth: .infinity, alignment: .leading)
                             .padding(.vertical, 8)
                         }
                     }
@@ -110,7 +102,19 @@ struct CollaboratorsView: View {
             .sheet(isPresented: $showingInviteView) {
                 InviteCollaboratorsView()
             }
+            .task {
+                loadUserData()
+            }
         }
+    }
+    
+    private func loadUserData() {
+        #if canImport(FirebaseAuth)
+        if let user = Auth.auth().currentUser {
+            ownerName = user.displayName ?? ""
+            ownerEmail = user.email ?? ""
+        }
+        #endif
     }
 }
 
